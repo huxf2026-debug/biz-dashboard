@@ -34,6 +34,288 @@
             min-height: 100vh;
         }
 
+
+        /* AI助手侧边面板 */
+        .ai-panel-toggle {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 120px;
+            background: linear-gradient(180deg, #00d4ff, #0099cc);
+            border-radius: 12px 0 0 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: width 0.3s, background 0.3s;
+            box-shadow: -4px 0 15px rgba(0, 212, 255, 0.3);
+            writing-mode: vertical-rl;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            padding: 8px 0;
+            user-select: none;
+        }
+
+        .ai-panel-toggle:hover {
+            background: linear-gradient(180deg, #00e5ff, #00b8d4);
+            box-shadow: -6px 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .ai-panel-toggle .ai-icon {
+            font-size: 18px;
+            margin-bottom: 6px;
+            writing-mode: horizontal-tb;
+        }
+
+        .ai-panel {
+            position: fixed;
+            right: -420px;
+            top: 0;
+            width: 420px;
+            height: 100vh;
+            background: var(--bg-primary);
+            border-left: 1px solid var(--border-color);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .ai-panel.open {
+            right: 0;
+        }
+
+        .ai-panel-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #141938, #1a2555);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .ai-panel-header h3 {
+            color: var(--accent-blue);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-panel-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .ai-panel-close:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+        }
+
+        .ai-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-msg {
+            max-width: 90%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .ai-msg.bot {
+            align-self: flex-start;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .ai-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0099cc, #00d4ff);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-msg .highlight {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .ai-msg .tag {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin: 2px 2px;
+        }
+
+        .ai-msg .tag-type-research { background: rgba(59,130,246,0.2); color: #60a5fa; }
+        .ai-msg .tag-type-develop { background: rgba(16,185,129,0.2); color: #34d399; }
+        .ai-msg .tag-type-service { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .ai-msg .tag-phase-active { background: rgba(0,212,255,0.15); color: #00d4ff; }
+        .ai-msg .tag-phase-pending { background: rgba(255,167,38,0.15); color: #ffa726; }
+        .ai-msg .tag-phase-done { background: rgba(16,185,129,0.15); color: #10b981; }
+
+        .ai-msg .project-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 6px 0;
+        }
+
+        .ai-msg .project-card .pc-name {
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }
+
+        .ai-msg .project-card .pc-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 2px 0;
+        }
+
+        .ai-msg .project-card .pc-row .pc-val {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .ai-msg .doc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 12px;
+            padding: 3px 8px;
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 6px;
+            margin: 3px 2px;
+            transition: background 0.2s;
+        }
+
+        .ai-msg .doc-link:hover {
+            background: rgba(0,212,255,0.1);
+        }
+
+        .ai-quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0 16px 12px;
+            flex-shrink: 0;
+        }
+
+        .ai-quick-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-quick-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(0,212,255,0.05);
+        }
+
+        .ai-panel-input {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-card);
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .ai-panel-input input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .ai-panel-input input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .ai-panel-input input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .ai-panel-input button {
+            background: linear-gradient(135deg, #0099cc, #00d4ff);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        .ai-panel-input button:hover {
+            opacity: 0.85;
+        }
+
+        .ai-welcome {
+            text-align: center;
+            padding: 20px 10px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .ai-welcome .ai-logo {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .ai-welcome strong {
+            color: var(--accent-blue);
+        }
+
+        @media (max-width: 768px) {
+            .ai-panel { width: 100vw; right: -100vw; }
+            .ai-panel-toggle { width: 32px; height: 80px; font-size: 12px; }
+        }
+
         /* 密码验证页面 */
         .password-overlay {
             position: fixed;
@@ -2064,6 +2346,368 @@
         function filterClients() {
             renderClientTable();
         }
+    
+
+        // ==================== AI助手引擎 ====================
+        
+        function toggleAiPanel() {
+            const panel = document.getElementById('aiPanel');
+            const toggle = document.getElementById('aiPanelToggle');
+            panel.classList.toggle('open');
+            toggle.style.display = panel.classList.contains('open') ? 'none' : 'flex';
+        }
+
+        function aiQuickAsk(q) {
+            document.getElementById('aiInput').value = q;
+            sendAiMsg();
+        }
+
+        function sendAiMsg() {
+            const input = document.getElementById('aiInput');
+            const q = input.value.trim();
+            if (!q) return;
+            input.value = '';
+
+            appendAiMsg('user', q);
+            
+            // Simulate thinking
+            setTimeout(() => {
+                const answer = processAiQuery(q);
+                appendAiMsg('bot', answer);
+            }, 300);
+        }
+
+        function appendAiMsg(role, html) {
+            const body = document.getElementById('aiChatBody');
+            // Remove welcome message on first interaction
+            const welcome = body.querySelector('.ai-welcome');
+            if (welcome) welcome.remove();
+
+            const div = document.createElement('div');
+            div.className = 'ai-msg ' + role;
+            div.innerHTML = html;
+            body.appendChild(div);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function getTypeTag(type) {
+            const cls = type === '研究' ? 'tag-type-research' : type === '集成开发' ? 'tag-type-develop' : 'tag-type-service';
+            return '<span class="tag ' + cls + '">' + (type || '未分类') + '</span>';
+        }
+
+        function getPhaseTag(phase) {
+            if (!phase) return '';
+            const activePhases = ['进行中', '可研编制', '初设编制', '项目建议书编制', '已立项未招采'];
+            const pendingPhases = ['待收尾款'];
+            const cls = activePhases.includes(phase) ? 'tag-phase-active' : pendingPhases.includes(phase) ? 'tag-phase-pending' : 'tag-phase-done';
+            return '<span class="tag ' + cls + '">' + phase + '</span>';
+        }
+
+        function projectCard(p) {
+            const person = getPerson(p.name);
+            const field = getField(p.name);
+            const planTotal = (p.q1||0)+(p.q2||0)+(p.q3||0)+(p.q4||0);
+            const actualTotal = (p.aq1||0)+(p.aq2||0)+(p.aq3||0)+(p.aq4||0);
+            let html = '<div class="project-card">';
+            html += '<div class="pc-name">' + p.name + '</div>';
+            html += '<div class="pc-row"><span>合同额</span><span class="pc-val">' + p.contract + '万</span></div>';
+            html += '<div class="pc-row"><span>待收款</span><span class="pc-val" style="color:#ffa726">' + p.pending + '万</span></div>';
+            if (planTotal > 0) html += '<div class="pc-row"><span>2026计划</span><span class="pc-val">' + planTotal.toFixed(2) + '万</span></div>';
+            if (actualTotal > 0) html += '<div class="pc-row"><span>2026实际</span><span class="pc-val" style="color:#10b981">' + actualTotal.toFixed(2) + '万</span></div>';
+            html += '<div class="pc-row"><span>负责人</span><span class="pc-val">' + person + '</span></div>';
+            if (field !== '-') html += '<div class="pc-row"><span>专业方向</span><span class="pc-val">' + field + '</span></div>';
+            html += '<div>' + getTypeTag(p.type) + ' ' + getPhaseTag(p.phase) + '</div>';
+            if (p.client) html += '<div class="pc-row" style="margin-top:4px"><span>甲方</span><span class="pc-val">' + p.client + '</span></div>';
+            if (p.contact) html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + p.contact + (p.position ? ' · ' + p.position : '') + '</span></div>';
+            if (p.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + p.phone + '</span></div>';
+            html += '</div>';
+            return html;
+        }
+
+        function fuzzyMatch(query, text) {
+            const q = query.toLowerCase();
+            const t = text.toLowerCase();
+            if (t.includes(q)) return true;
+            // Substring match: check if any 2+ char sub of query is in text
+            if (q.length >= 2) {
+                for (let i = 0; i <= q.length - 2; i++) {
+                    if (t.includes(q.substring(i, i+2))) return true;
+                }
+            }
+            return false;
+        }
+
+        function processAiQuery(q) {
+            const activeProjects = PROJECTS.filter(p => p.phase !== '撤销立项');
+            const nonZeroProjects = activeProjects.filter(p => p.contract > 0);
+
+            // 1. 项目查询 - match project name
+            const matchedProjects = activeProjects.filter(p => fuzzyMatch(q, p.name));
+            if (matchedProjects.length > 0 && matchedProjects.length <= 5 && q.length >= 2) {
+                // Check if the query is specifically about a project (not a general question)
+                const generalKeywords = ['活跃', '分布', '总', '多少', '哪些', '所有', '待收', '收到', '进度', '甲方', '客户', '联系方式', '通讯录', '趋势', '统计', '概览', '概要', '汇总', '最大', '最多', '排名', '排行', 'top'];
+                const isGeneral = generalKeywords.some(k => q.includes(k));
+                if (!isGeneral || matchedProjects.length === 1) {
+                    let html = '找到 <span class="highlight">' + matchedProjects.length + '</span> 个相关项目：';
+                    matchedProjects.forEach(p => { html += projectCard(p); });
+                    return html;
+                }
+            }
+
+            // 2. 活跃项目
+            if (q.includes('活跃') || q.includes('进行中') || (q.includes('当前') && q.includes('项目') && !q.includes('所有'))) {
+                const doing = activeProjects.filter(p => ['进行中', '可研编制', '初设编制', '项目建议书编制'].includes(p.phase));
+                let html = '当前活跃项目共 <span class="highlight">' + doing.length + '</span> 个：';
+                doing.forEach(p => { html += projectCard(p); });
+                return html;
+            }
+
+            // 3. 待收款最多
+            if (q.includes('待收款') && (q.includes('最多') || q.includes('top') || q.includes('排名') || q.includes('排行'))) {
+                const sorted = nonZeroProjects.filter(p => p.pending > 0).sort((a,b) => b.pending - a.pending).slice(0, 8);
+                let html = '待收款TOP项目：';
+                sorted.forEach(p => { html += projectCard(p); });
+                return html;
+            }
+
+            // 4. 已收款/实际收款
+            if (q.includes('收到款') || q.includes('已收款') || q.includes('实际收款') || (q.includes('最近') && q.includes('收款'))) {
+                const withActual = activeProjects.filter(p => {
+                    const actual = (p.aq1||0)+(p.aq2||0)+(p.aq3||0)+(p.aq4||0);
+                    return actual > 0;
+                });
+                if (withActual.length === 0) {
+                    return '目前2026年各项目暂无实际收款记录（Q2实际收款23.79万来自"生态产品价值统一核算信息平台建设采购项目"，属于跨年项目）。';
+                }
+                let html = '已有实际收款的项目共 <span class="highlight">' + withActual.length + '</span> 个：';
+                withActual.forEach(p => { html += projectCard(p); });
+                return html;
+            }
+
+            // 5. 收款进度
+            if (q.includes('收款进度') || q.includes('收款情况') || (q.includes('2026') && q.includes('收款'))) {
+                const totalPlan = Object.values(PLAN_DATA).reduce((s,q2) => s + q2.research + q2.develop + q2.service, 0);
+                const totalActual = Object.values(ACTUAL_DATA).reduce((s,q2) => s + q2.research + q2.develop + q2.service, 0);
+                const pct = totalPlan > 0 ? (totalActual / totalPlan * 100).toFixed(1) : 0;
+                let html = '📊 <strong>2026年收款进度</strong><br><br>';
+                html += '计划收款：<span class="highlight">' + totalPlan.toFixed(2) + '万</span><br>';
+                html += '实际收款：<span class="highlight" style="color:#10b981">' + totalActual.toFixed(2) + '万</span><br>';
+                html += '完成率：<span class="highlight">' + pct + '%</span><br><br>';
+                
+                const quarters = ['Q1','Q2','Q3','Q4'];
+                const keys = ['q1','q2','q3','q4'];
+                html += '<div class="project-card">';
+                quarters.forEach((ql, i) => {
+                    const k = keys[i];
+                    const qp = PLAN_DATA[k].research + PLAN_DATA[k].develop + PLAN_DATA[k].service;
+                    const qa = ACTUAL_DATA[k].research + ACTUAL_DATA[k].develop + ACTUAL_DATA[k].service;
+                    const qpct = qp > 0 ? (qa/qp*100).toFixed(0) : '-';
+                    html += '<div class="pc-row"><span>' + ql + '</span><span class="pc-val">计划' + qp.toFixed(2) + ' / 实际' + qa.toFixed(2) + ' (' + qpct + '%)</span></div>';
+                });
+                html += '</div>';
+                return html;
+            }
+
+            // 6. 甲方/客户/联系方式
+            if (q.includes('甲方') || q.includes('客户') || q.includes('联系方式') || q.includes('通讯录') || q.includes('对接人')) {
+                const withContact = CLIENTS.filter(c => c.contact);
+                // Check if asking about a specific client
+                const specificClient = withContact.filter(c => fuzzyMatch(q, c.client) || (c.contact && fuzzyMatch(q, c.contact)));
+                if (specificClient.length > 0) {
+                    let html = '找到相关客户信息：';
+                    specificClient.forEach(c => {
+                        html += '<div class="project-card">';
+                        html += '<div class="pc-name">' + c.client + '</div>';
+                        html += '<div class="pc-row"><span>性质</span><span class="pc-val">' + (c.type||'-') + '</span></div>';
+                        html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + c.contact + '</span></div>';
+                        if (c.position) html += '<div class="pc-row"><span>职务</span><span class="pc-val">' + c.position + '</span></div>';
+                        if (c.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + c.phone + '</span></div>';
+                        html += '</div>';
+                    });
+                    return html;
+                }
+                
+                let html = '有联系方式的甲方共 <span class="highlight">' + withContact.length + '</span> 家：<br><br>';
+                withContact.forEach(c => {
+                    html += '<div class="project-card">';
+                    html += '<div class="pc-name">' + c.client + '</div>';
+                    html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + c.contact + (c.position ? ' · ' + c.position : '') + '</span></div>';
+                    if (c.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + c.phone + '</span></div>';
+                    html += '</div>';
+                });
+                return html;
+            }
+
+            // 7. 专业方向分布
+            if (q.includes('专业') && (q.includes('分布') || q.includes('方向') || q.includes('统计'))) {
+                const fieldMap = {};
+                activeProjects.forEach(p => {
+                    const f = getField(p.name);
+                    if (f && f !== '-') {
+                        if (!fieldMap[f]) fieldMap[f] = { count: 0, contract: 0 };
+                        fieldMap[f].count++;
+                        fieldMap[f].contract += p.contract;
+                    }
+                });
+                let html = '<strong>专业方向项目分布</strong><br><br>';
+                Object.entries(fieldMap).sort((a,b) => b[1].count - a[1].count).forEach(([field, data]) => {
+                    html += '<div class="project-card">';
+                    html += '<div class="pc-name">' + field + '</div>';
+                    html += '<div class="pc-row"><span>项目数</span><span class="pc-val">' + data.count + '个</span></div>';
+                    html += '<div class="pc-row"><span>合同额</span><span class="pc-val">' + data.contract.toFixed(2) + '万</span></div>';
+                    html += '</div>';
+                });
+                return html;
+            }
+
+            // 8. 某个专业方向的项目
+            const fieldKeywords = {'咨询': '咨询工作', '智慧环境': '智慧环境', '工程协同': '工程协同', '智慧市政': '智慧市政', 'AI': 'AI智能化', '智能化': 'AI智能化', '运营': '城市/社区运营', '规划': '规划行业'};
+            for (const [kw, fieldName] of Object.entries(fieldKeywords)) {
+                if (q.includes(kw) && !q.includes('分布')) {
+                    const fProjects = activeProjects.filter(p => getField(p.name) === fieldName);
+                    if (fProjects.length > 0) {
+                        let html = '<strong>' + fieldName + '</strong>方向共 <span class="highlight">' + fProjects.length + '</span> 个项目：';
+                        fProjects.forEach(p => { html += projectCard(p); });
+                        return html;
+                    }
+                }
+            }
+
+            // 9. 负责人相关
+            const persons = ['胡晓飞', '韩江雪', '袁誉菲', '欧阳玲', '石名扬', '李承涛', '汪凯', '刘文娟', '袁富林', '夏丽'];
+            const matchedPerson = persons.find(p => q.includes(p));
+            if (matchedPerson) {
+                const pProjects = activeProjects.filter(p2 => getPerson(p2.name) === matchedPerson);
+                if (pProjects.length > 0) {
+                    let html = '<strong>' + matchedPerson + '</strong>负责的项目共 <span class="highlight">' + pProjects.length + '</span> 个：';
+                    pProjects.forEach(p => { html += projectCard(p); });
+                    return html;
+                }
+            }
+
+            // 10. 合同额最大/最大项目
+            if (q.includes('最大') || q.includes('合同额最多') || (q.includes('top') && !q.includes('待收'))) {
+                const sorted = nonZeroProjects.sort((a,b) => b.contract - a.contract).slice(0, 5);
+                let html = '合同额TOP5项目：';
+                sorted.forEach((p, i) => {
+                    html += '<div class="project-card">';
+                    html += '<div class="pc-name">' + (i+1) + '. ' + p.name + '</div>';
+                    html += '<div class="pc-row"><span>合同额</span><span class="pc-val" style="color:#ffa726">' + p.contract + '万</span></div>';
+                    html += '</div>';
+                });
+                return html;
+            }
+
+            // 11. 阶段相关
+            const phaseMap = {'待收尾': '待收尾款', '收尾': '待收尾款', '立项': '已立项未招采', '招采': '已立项未招采', '可研': '可研编制', '初设': '初设编制', '建议书': '项目建议书编制', '前期': '前期跟进'};
+            for (const [kw, phaseName] of Object.entries(phaseMap)) {
+                if (q.includes(kw)) {
+                    const phProjects = activeProjects.filter(p => p.phase === phaseName || (kw === '前期' && p.phase === '前期跟进'));
+                    if (phProjects.length > 0) {
+                        let html = '"' + phaseName + '"阶段项目共 <span class="highlight">' + phProjects.length + '</span> 个：';
+                        phProjects.forEach(p => { html += projectCard(p); });
+                        return html;
+                    }
+                }
+            }
+
+            // 12. 文件/合同下载
+            if (q.includes('合同') || q.includes('文件') || q.includes('下载') || q.includes('文档')) {
+                const withDoc = activeProjects.filter(p => getDocPath(p.name));
+                if (matchedProjects.length > 0) {
+                    let html = '找到相关项目的文档：';
+                    matchedProjects.filter(p => getDocPath(p.name)).forEach(p => {
+                        html += '<div class="project-card">';
+                        html += '<div class="pc-name">' + p.name + '</div>';
+                        html += '<a class="doc-link" href="javascript:void(0)" onclick="alert("文档系统对接中，暂未开放")">📁 查看项目文档</a>';
+                        html += '</div>';
+                    });
+                    if (matchedProjects.filter(p => getDocPath(p.name)).length === 0) {
+                        html += '<br>该项目暂未关联文档目录。';
+                    }
+                    return html;
+                }
+                let html = '当前有 <span class="highlight">' + withDoc.length + '</span> 个项目已关联文档目录。<br>文档系统正在对接中，敬请期待。<br><br>';
+                html += '你可以输入具体项目名称来查询该项目的相关文件。';
+                return html;
+            }
+
+            // 13. 总体概览
+            if (q.includes('总') && (q.includes('概览') || q.includes('情况') || q.includes('多少') || q.includes('统计'))) {
+                const totalContract = nonZeroProjects.reduce((s,p) => s + p.contract, 0);
+                const totalPending = nonZeroProjects.reduce((s,p) => s + p.pending, 0);
+                const typeMap = {};
+                nonZeroProjects.forEach(p => { typeMap[p.type] = (typeMap[p.type]||0) + 1; });
+                
+                let html = '<strong>经营概览</strong><br><br>';
+                html += '<div class="project-card">';
+                html += '<div class="pc-row"><span>总项目数</span><span class="pc-val">' + activeProjects.length + '个</span></div>';
+                html += '<div class="pc-row"><span>有效项目</span><span class="pc-val">' + nonZeroProjects.length + '个</span></div>';
+                html += '<div class="pc-row"><span>合同总额</span><span class="pc-val" style="color:#ffa726">' + totalContract.toFixed(2) + '万</span></div>';
+                html += '<div class="pc-row"><span>待收款总额</span><span class="pc-val">' + totalPending.toFixed(2) + '万</span></div>';
+                html += '<div class="pc-row"><span>收款率</span><span class="pc-val" style="color:#10b981">' + (totalContract > 0 ? ((totalContract-totalPending)/totalContract*100).toFixed(1) : 0) + '%</span></div>';
+                html += '</div><br>';
+                html += '<strong>按类型：</strong><br>';
+                Object.entries(typeMap).forEach(([t, c]) => {
+                    html += getTypeTag(t) + ' ' + c + '个 &nbsp;';
+                });
+                return html;
+            }
+
+            // 14. Default: search by keywords
+            if (matchedProjects.length > 5) {
+                let html = '找到 <span class="highlight">' + matchedProjects.length + '</span> 个相关项目，显示前5个：';
+                matchedProjects.slice(0, 5).forEach(p => { html += projectCard(p); });
+                html += '<br><span style="color:var(--text-muted);font-size:12px">还有' + (matchedProjects.length - 5) + '个项目，可以缩小搜索范围查看</span>';
+                return html;
+            }
+
+            // 15. Fallback
+            let html = '我没有完全理解你的问题 🤔<br><br>你可以试试这样问：<br>';
+            html += '• "XX项目的情况" — 查询项目详情<br>';
+            html += '• "活跃项目有哪些" — 查看进行中项目<br>';
+            html += '• "待收款最多的项目" — 查看待收款排名<br>';
+            html += '• "最近收到款的项目" — 查看已收款项目<br>';
+            html += '• "甲方联系方式" — 查看客户通讯录<br>';
+            html += '• "2026收款进度" — 查看计划vs实际<br>';
+            html += '• "智慧环境方向的项目" — 按专业方向查询<br>';
+            html += '• "胡晓飞负责的项目" — 按负责人查询<br>';
+            html += '• "总体概览" — 经营数据总览';
+            return html;
+        }
+
     </script>
+
+    <!-- AI助手面板 -->
+    <div class="ai-panel-toggle" id="aiPanelToggle" onclick="toggleAiPanel()">
+        <span class="ai-icon">✨</span>
+        <span>AI助手</span>
+    </div>
+
+    <div class="ai-panel" id="aiPanel">
+        <div class="ai-panel-header">
+            <h3>✨ 智能经营助手</h3>
+            <button class="ai-panel-close" onclick="toggleAiPanel()">✕</button>
+        </div>
+        <div class="ai-panel-body" id="aiChatBody">
+            <div class="ai-welcome">
+                <div class="ai-logo">✨</div>
+                <strong>经营数据智能助手</strong><br>
+                可以问我关于项目、客户、收款等<br>经营相关的任何问题
+            </div>
+        </div>
+        <div class="ai-quick-actions">
+            <button class="ai-quick-btn" onclick="aiQuickAsk('当前活跃项目有哪些')">活跃项目</button>
+            <button class="ai-quick-btn" onclick="aiQuickAsk('待收款最多的项目')">待收款TOP</button>
+            <button class="ai-quick-btn" onclick="aiQuickAsk('最近收到款的项目')">已收款项目</button>
+            <button class="ai-quick-btn" onclick="aiQuickAsk('各专业方向项目分布')">专业分布</button>
+            <button class="ai-quick-btn" onclick="aiQuickAsk('有哪些甲方联系方式')">甲方通讯录</button>
+            <button class="ai-quick-btn" onclick="aiQuickAsk('2026年收款进度')">收款进度</button>
+        </div>
+        <div class="ai-panel-input">
+            <input type="text" id="aiInput" placeholder="输入你的问题..." onkeydown="if(event.key==='Enter')sendAiMsg()">
+            <button onclick="sendAiMsg()">发送</button>
+        </div>
+    </div>
 </body>
 </html>
