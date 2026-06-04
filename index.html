@@ -1785,7 +1785,7 @@ const FILE_INDEX = {
             const status_stats = {};
 
             PROJECTS.forEach(p => {
-                const year = getYear(p.name);
+                const year = p.year || getYear(p.name);
                 const isCancelled = p.phase === '撤销立项';
 
                 // 不统计撤销立项和合同额为0的项目
@@ -2253,7 +2253,7 @@ const FILE_INDEX = {
             tbody.innerHTML = filtered.map((p, index) => {
                 const isCancelled = p.phase === '撤销立项';
                 const isExpanded = expandedRows.has(p.name);
-                const year = getYear(p.name);
+                const year = p.year || getYear(p.name);
                 const person = getPerson(p.name);
                 const field = getField(p.name);
                 const docPath = getDocPath(p.name);
