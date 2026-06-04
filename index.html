@@ -1440,6 +1440,39 @@
             '笋岗数字孪生城区管理平台': '/home/coze/projects/笋岗数字孪生/'
         };
 
+const FILE_INDEX = {
+  "规资数据产品": [
+    {
+      "name": "合同扫描件.pdf",
+      "category": "合同/证明",
+      "ext": ".pdf",
+      "size": 1103125,
+      "url": "./docs/规资数据产品/合同扫描件.pdf"
+    },
+    {
+      "name": "项目计划书.docx",
+      "category": "文档",
+      "ext": ".docx",
+      "size": 185893,
+      "url": "./docs/规资数据产品/项目计划书.docx"
+    },
+    {
+      "name": "中标通知书.pdf",
+      "category": "合同/证明",
+      "ext": ".pdf",
+      "size": 98007,
+      "url": "./docs/规资数据产品/中标通知书.pdf"
+    },
+    {
+      "name": "实施方案V1.0.docx",
+      "category": "文档",
+      "ext": ".docx",
+      "size": 51136,
+      "url": "./docs/规资数据产品/实施方案V1.0.docx"
+    }
+  ]
+};
+
         // 年份映射 (0表示不参与统计)
         const YEAR_MAP = {
             '深圳市再生水管线普查数据入库与水质标准研究': 2024,
@@ -2420,6 +2453,22 @@
             if (p.client) html += '<div class="pc-row" style="margin-top:4px"><span>甲方</span><span class="pc-val">' + p.client + '</span></div>';
             if (p.contact) html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + p.contact + (p.position ? ' · ' + p.position : '') + '</span></div>';
             if (p.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + p.phone + '</span></div>';
+            // Show files if available
+            const pFiles = (function() {
+                const docPath = getDocPath(p.name);
+                if (!docPath) return [];
+                const dirName = docPath.split('/').filter(Boolean).pop();
+                return FILE_INDEX[dirName] || [];
+            })();
+            if (pFiles.length > 0) {
+                html += '<div style="margin-top:6px;border-top:1px solid var(--border-color);padding-top:6px">';
+                html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">📎 项目文档</div>';
+                pFiles.forEach(f => {
+                    const icon = f.ext === '.pdf' ? '📄' : f.ext === '.docx' || f.ext === '.doc' ? '📝' : '📊';
+                    html += '<a class="doc-link" href="' + f.url + '" target="_blank" download>' + icon + ' ' + f.name + '</a>';
+                });
+                html += '</div>';
+            }
             html += '</div>';
             return html;
         }
@@ -2613,23 +2662,58 @@
 
             // 12. 文件/合同下载
             if (q.includes('合同') || q.includes('文件') || q.includes('下载') || q.includes('文档')) {
-                const withDoc = activeProjects.filter(p => getDocPath(p.name));
-                if (matchedProjects.length > 0) {
-                    let html = '找到相关项目的文档：';
-                    matchedProjects.filter(p => getDocPath(p.name)).forEach(p => {
-                        html += '<div class="project-card">';
-                        html += '<div class="pc-name">' + p.name + '</div>';
-                        html += '<a class="doc-link" href="javascript:void(0)" onclick="alert("文档系统对接中，暂未开放")">📁 查看项目文档</a>';
-                        html += '</div>';
+                // Helper: get files for a project
+                function getProjectFiles(projectName) {
+                    const docPath = getDocPath(projectName);
+                    if (!docPath) return [];
+                    const dirName = docPath.split('/').filter(Boolean).pop();
+                    return FILE_INDEX[dirName] || [];
+                }
+                
+                function formatSize(bytes) {
+                    if (bytes < 1024) return bytes + 'B';
+                    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + 'KB';
+                    return (bytes/1024/1024).toFixed(1) + 'MB';
+                }
+                
+                function renderFileList(files) {
+                    if (!files.length) return '<br><span style="color:var(--text-muted);font-size:12px">暂无上传文档</span>';
+                    let html = '';
+                    files.forEach(f => {
+                        const icon = f.ext === '.pdf' ? '📄' : f.ext === '.docx' || f.ext === '.doc' ? '📝' : f.ext === '.xlsx' || f.ext === '.xls' ? '📊' : f.ext === '.pptx' ? '📑' : '📁';
+                        html += '<a class="doc-link" href="' + f.url + '" target="_blank" download>' + icon + ' ' + f.name + ' <span style="color:var(--text-muted);font-size:11px">(' + formatSize(f.size) + ')</span></a>';
                     });
-                    if (matchedProjects.filter(p => getDocPath(p.name)).length === 0) {
-                        html += '<br>该项目暂未关联文档目录。';
-                    }
                     return html;
                 }
-                let html = '当前有 <span class="highlight">' + withDoc.length + '</span> 个项目已关联文档目录。<br>文档系统正在对接中，敬请期待。<br><br>';
-                html += '你可以输入具体项目名称来查询该项目的相关文件。';
-                return html;
+                
+                // Check if querying about a specific project
+                if (matchedProjects.length > 0) {
+                    let html = '找到相关项目的文档：';
+                    matchedProjects.forEach(p => {
+                        const files = getProjectFiles(p.name);
+                        html += '<div class="project-card">';
+                        html += '<div class="pc-name">' + p.name + '</div>';
+                        html += renderFileList(files);
+                        html += '</div>';
+                    });
+                    return html;
+                }
+                
+                // Show all projects with files
+                const projectsWithFiles = activeProjects.filter(p => getProjectFiles(p.name).length > 0);
+                if (projectsWithFiles.length > 0) {
+                    let html = '当前有 <span class="highlight">' + projectsWithFiles.length + '</span> 个项目已上传文档：<br><br>';
+                    projectsWithFiles.forEach(p => {
+                        const files = getProjectFiles(p.name);
+                        html += '<div class="project-card">';
+                        html += '<div class="pc-name">' + p.name + '</div>';
+                        html += renderFileList(files);
+                        html += '</div>';
+                    });
+                    return html;
+                }
+                
+                return '当前暂无项目上传文档。各项目目录已创建，文件将在后续录入。<br>你可以输入具体项目名称来查询该项目的相关文件。';
             }
 
             // 13. 总体概览
