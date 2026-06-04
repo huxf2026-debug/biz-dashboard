@@ -184,10 +184,60 @@
             color: var(--accent-blue);
         }
 
+        .overview-card .value.green {
+            color: var(--success);
+        }
+
         .overview-card .unit {
             font-size: 16px;
             color: var(--text-secondary);
             margin-left: 4px;
+        }
+
+
+        /* 项目概览统计卡 */
+        .project-summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 16px 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .summary-value.accent-blue {
+            color: var(--accent-blue);
+        }
+
+        .summary-unit {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 2px;
         }
 
         /* 图表区 */
@@ -798,9 +848,9 @@
                 <span class="unit">万元</span>
             </div>
             <div class="overview-card">
-                <div class="label">活跃项目数</div>
-                <div class="value blue stat-animate" id="activeProjects">0</div>
-                <span class="unit">个</span>
+                <div class="label">2026实际收款</div>
+                <div class="value green stat-animate" id="totalActual">0</div>
+                <span class="unit">万元</span>
             </div>
         </section>
 
@@ -842,7 +892,56 @@
             <div class="team-grid" id="teamGrid"></div>
         </section>
 
-        <!-- Tab 切换 -->
+        <!-- 项目概览统计 -->
+        <section class="project-summary-cards">
+            <div class="summary-card">
+                <div class="summary-label">总项目数</div>
+                <div class="summary-value" id="totalProjectCount">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">活跃项目数</div>
+                <div class="summary-value accent-blue" id="activeProjectCount">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">咨询工作</div>
+                <div class="summary-value" id="fieldCount0">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">智慧环境</div>
+                <div class="summary-value" id="fieldCount1">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">工程协同</div>
+                <div class="summary-value" id="fieldCount2">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">智慧市政</div>
+                <div class="summary-value" id="fieldCount3">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">AI智能化</div>
+                <div class="summary-value" id="fieldCount4">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">城市/社区运营</div>
+                <div class="summary-value" id="fieldCount5">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">规划行业</div>
+                <div class="summary-value" id="fieldCount6">0</div>
+                <span class="summary-unit">个</span>
+            </div>
+        </section>
+
+                <!-- Tab 切换 -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('projects')">📋 项目列表</button>
             <button class="tab-btn" onclick="switchTab('clients')">📇 甲方通讯录</button>
@@ -1143,7 +1242,7 @@
         };
 
         // 项目数据
-                        const PROJECTS = [
+                                const PROJECTS = [
     { name: '深圳市再生水管线普查数据入库与水质标准研究', type: '研究', contract: 40, year: 2024, phase: '待收尾款', pending: 8, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '' },
     { name: '生态产品价值统一核算信息平台建设采购项目', type: '研究', contract: 79.3, year: 2024, phase: '待收尾款', pending: 23.79, q1: 0, q2: 23.79, q3: 0, q4: 0, aq1: 0, aq2: 23.79, aq3: 0, aq4: 0, client: '长三角生态绿色一体化发展示范区执行委员会', contact: '汪海峰', position: '规建部对接人', phone: '微信号：Omni_G' },
     { name: '智慧应急展教基地顶层设计', type: '研究', contract: 13, year: 2024, phase: '待收尾款', pending: 13, q1: 0, q2: 0, q3: 6.5, q4: 6.5, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市应急管理局', contact: '郭志杰', position: '科信处副处长', phone: '135****6580' },
@@ -1168,9 +1267,9 @@
     { name: 'CSPON-业务系统需求设计', type: '服务', contract: 38, year: 2026, phase: '已立项未招采', pending: 38, q1: 0, q2: 0, q3: 38, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '易图资讯股份有限公司', contact: '张甲伟', position: '项目经理', phone: '137****7953' },
     { name: '深圳市山海连城智慧导览系统建设（一期）', type: '集成开发', contract: 580, year: 2026, phase: '待收尾款', pending: 8.25, q1: 0, q2: 0, q3: 0, q4: 8.25, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '市规资局空信处', contact: '邓雅欣', position: '发展研究中心借调人员', phone: '135****0961' },
     { name: '龙岗大运北片区规划会商平台', type: '服务', contract: 9.24, year: 2026, phase: '进行中', pending: 9.24, q1: 0, q2: 7.7, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市润投咨询有限公司（更新中心与我们签订产值切分）', contact: '杨波', position: '部门经理', phone: '137****6074' },
-    { name: '龙川CIM', type: '服务', contract: 434.5, year: 2026, phase: '已立项未招采', pending: 384, q1: 0, q2: 0, q3: 76.8, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '' },
-    { name: '南山一张图实验室', type: '集成开发', contract: 0, year: 2026, phase: '初设编制', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '' },
-    { name: '住建局BIM项目', type: '研究', contract: 0, year: 2026, phase: '已立项未招采', pending: 200, q1: 0, q2: 10, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深城交', contact: '陈炜', position: '项目经理', phone: '188****5786' },
+    { name: '龙川CIM', type: '服务', contract: 200, year: 2026, phase: '已立项未招采', pending: 200, q1: 0, q2: 0, q3: 40, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '' },
+    { name: '南山一张图实验室', type: '集成开发', contract: 900, year: 2026, phase: '初设编制', pending: 0, q1: 0, q2: 0, q3: 0, q4: 180, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '' },
+    { name: '住建局BIM项目', type: '研究', contract: 150, year: 2026, phase: '已立项未招采', pending: 150, q1: 0, q2: 10, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深城交', contact: '陈炜', position: '项目经理', phone: '188****5786' },
     { name: '南山圳智慧规划设计场景建设项目(云上二期，可研待定)', type: '集成开发', contract: 300, year: 2026, phase: '可研编制', pending: 204, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市原世界科技有限公司', contact: '贾玉娟', position: '总经理', phone: '135****1329' },
     { name: '生态环境监测中心站2026年定点项目', type: '研究', contract: 130, year: 2026, phase: '已立项未招采', pending: 70, q1: 0, q2: 0, q3: 35, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市环境监测中心站', contact: '孙天乐', position: '大气室主任', phone: '136****0829' },
     { name: '华富社区鸿蒙智慧党群建设项目', type: '集成开发', contract: 500, year: 2026, phase: '项目建议书编制', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '' },
@@ -1180,7 +1279,7 @@
         ];
 
         // 客户数据
-                        const CLIENTS = [
+                                const CLIENTS = [
     { client: '长三角生态绿色一体化发展示范区执行委员会', type: '政府部门', contact: '汪海峰', position: '规建部对接人', phone: '微信号：Omni_G' },
     { client: '深圳市应急管理局', type: '政府部门', contact: '郭志杰', position: '科信处副处长', phone: '135****6580' },
     { client: '深圳市工务署', type: '政府部门', contact: '', position: '', phone: '' },
@@ -1200,15 +1299,15 @@
         ];
 
         // 计划收款数据 (按季度)
-                        const PLAN_DATA = {
+                                const PLAN_DATA = {
     q1: { research: 0, develop: 0, service: 0 },
     q2: { research: 79.84, develop: 39.3, service: 159.8 },
-    q3: { research: 68.5, develop: 0, service: 216.2 },
-    q4: { research: 143.8, develop: 518.05, service: 39.5 },
+    q3: { research: 68.5, develop: 0, service: 179.4 },
+    q4: { research: 143.8, develop: 698.05, service: 39.5 },
         };
 
         // 实际收款数据 (按季度, Q1为空表示未录入)
-                        const ACTUAL_DATA = {
+                                const ACTUAL_DATA = {
     q1: { research: 0, develop: 0, service: 0 },
     q2: { research: 23.79, develop: 0, service: 0 },
     q3: { research: 0, develop: 0, service: 0 },
@@ -1317,7 +1416,10 @@
             animateNumber('totalContract', stats.total_contract);
             animateNumber('totalPending', stats.total_pending);
             animateNumber('totalPlan', stats.total_2026_plan);
-            animateNumber('activeProjects', stats.active_projects);
+            animateNumber('totalActual', stats.total_2026_actual);
+
+            // 更新项目概览统计卡
+            updateProjectSummary(stats);
 
             // 初始化图表
             initQuarterlyChart();
@@ -1374,14 +1476,29 @@
             // 2026计划收款 = PLAN_DATA Q1~Q4总和
             total_2026_plan = Object.values(PLAN_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
 
+            // 2026实际收款 = ACTUAL_DATA Q1~Q4总和
+            let total_2026_actual = Object.values(ACTUAL_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
+
+            // 专业方向统计
+            const field_stats = {};
+            PROJECTS.forEach(p => {
+                if (p.phase === '撤销立项') return;
+                const field = getField(p.name);
+                if (field && field !== '-') {
+                    field_stats[field] = (field_stats[field] || 0) + 1;
+                }
+            });
+
             return {
                 total_contract,
                 total_pending,
                 total_2026_plan,
+                total_2026_actual,
                 active_projects,
                 year_stats,
                 type_stats,
-                status_stats
+                status_stats,
+                field_stats
             };
         }
 
@@ -1406,6 +1523,20 @@
             }
 
             requestAnimationFrame(update);
+        }
+
+        function updateProjectSummary(stats) {
+            // 总项目数（非撤销立项）
+            const totalProjects = PROJECTS.filter(p => p.phase !== '撤销立项').length;
+            document.getElementById('totalProjectCount').textContent = totalProjects;
+            document.getElementById('activeProjectCount').textContent = stats.active_projects;
+
+            // 专业方向分布
+            const fieldOrder = ['咨询工作', '智慧环境', '工程协同', '智慧市政', 'AI智能化', '城市/社区运营', '规划行业'];
+            fieldOrder.forEach((field, i) => {
+                const el = document.getElementById('fieldCount' + i);
+                if (el) el.textContent = stats.field_stats[field] || 0;
+            });
         }
 
         // 季度收款计划图
