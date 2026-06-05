@@ -158,12 +158,13 @@ def main():
     projects.sort(key=lambda x: x['contract'], reverse=True)
     
     # Step 4: Build PLAN_DATA/ACTUAL_DATA (2026 quarterly)
+    # 注意：年份字段仅用于项目分类统计，不干涉Q1-Q4的收款数据
+    # Q1-Q4计划/实际收款就是2026年度数据，所有财务记录都应纳入统计
     print("\n[4/6] 生成季度计划/实际数据(2026)...")
     plan_data = {q: {'research': 0, 'service': 0, 'develop': 0} for q in ['q1','q2','q3','q4']}
     actual_data = {q: {'research': 0, 'service': 0, 'develop': 0} for q in ['q1','q2','q3','q4']}
     
     for frec in finance_records:
-        if frec.get('年份', '').strip() != '2026': continue
         proj_name = resolve_name(frec.get('项目名称', ''))
         if not proj_name: continue
         
