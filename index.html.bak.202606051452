@@ -2498,157 +2498,76 @@ const FILE_INDEX = {
             return html;
         }
 
-        // ============ 项目别名/简称映射 ============
-        const PROJECT_ALIASES = {
-            '龙川': '龙川CIM', '井盖': '通讯井盖AI智慧运维项目', '前海': '前海智慧规划平台',
-            '内控': '内控体系管理助手及智能办公助手技术服务', '生态产品': '生态产品价值统一核算信息平台建设采购项目',
-            '南山圳': '南山圳智慧规划设计场景建设项目', '云上二期': '南山圳智慧规划设计场景建设项目',
-            '垂类': '规划和自然资源垂类AI模型训练和场景验证', '碳污': '碳污协同溯源及空气质量预报支持服务',
-            '笋岗': '笋岗上盖数字孪生协同管控平台', '数字孪生': '笋岗上盖数字孪生协同管控平台',
-            '大空港': '大空港', '光明': '光明', '宝安': '宝安', '坪山': '坪山',
-            '龙华': '龙华', '罗湖': '罗湖', '福田': '福田', '盐田': '盐田',
-            '城市体检': '城市体检', '更新': '城市更新', '规划编审': '规划编审',
-            'BIM': 'BIM', 'CIM': 'CIM',
-        };
-
-        // ============ 智能评分匹配 ============
-        function scoreMatch(query, text) {
-            const q = query.toLowerCase().replace(/\s+/g, '');
-            const t = text.toLowerCase().replace(/\s+/g, '');
-            if (!q || !t) return 0;
-            
-            // 完全匹配
-            if (q === t) return 100;
-            
-            // 包含匹配（query是text的子串）
-            if (t.includes(q)) return 80 + Math.min(q.length * 2, 20);
-            
-            // text包含query的连续子串
-            let bestSubLen = 0;
-            for (let len = Math.min(q.length, t.length); len >= 2; len--) {
-                for (let i = 0; i <= q.length - len; i++) {
-                    if (t.includes(q.substring(i, i + len))) {
-                        bestSubLen = len;
-                        break;
-                    }
-                }
-                if (bestSubLen > 0) break;
-            }
-            if (bestSubLen >= 3) return 40 + bestSubLen * 5;
-            if (bestSubLen >= 2) return 15 + bestSubLen * 3;
-            
-            // 字符重合度
-            let overlap = 0;
-            for (const ch of q) { if (t.includes(ch)) overlap++; }
-            const ratio = overlap / q.length;
-            if (ratio > 0.7 && q.length >= 3) return 20;
-            
-            return 0;
-        }
-
-        function matchProjects(query, projects, threshold = 25) {
-            const results = [];
-            const q = query.trim();
-            
-            // 先检查别名映射
-            const aliasKeys = Object.keys(PROJECT_ALIASES).sort((a, b) => b.length - a.length);
-            let expandedQ = q;
-            for (const alias of aliasKeys) {
-                if (q.includes(alias)) {
-                    expandedQ = q.replace(alias, PROJECT_ALIASES[alias]);
-                    break;
+        function fuzzyMatch(query, text) {
+            const q = query.toLowerCase();
+            const t = text.toLowerCase();
+            if (t.includes(q)) return true;
+            // Substring match: check if any 2+ char sub of query is in text
+            if (q.length >= 2) {
+                for (let i = 0; i <= q.length - 2; i++) {
+                    if (t.includes(q.substring(i, i+2))) return true;
                 }
             }
-            
-            for (const p of projects) {
-                // 对原始query和扩展后的query都算分
-                const score1 = scoreMatch(q, p.name);
-                const score2 = scoreMatch(expandedQ, p.name);
-                // 也匹配甲方、负责人
-                const score3 = (p.client && p.client.length > 1) ? scoreMatch(q, p.client) * 0.6 : 0;
-                const score4 = (p.leader && p.leader.length > 1) ? scoreMatch(q, p.leader) * 0.5 : 0;
-                // 专业方向匹配
-                const field = getField(p.name);
-                const score5 = (field && field !== '-') ? scoreMatch(q, field) * 0.4 : 0;
-                
-                const bestScore = Math.max(score1, score2, score3, score4, score5);
-                if (bestScore >= threshold) {
-                    results.push({ project: p, score: bestScore });
-                }
-            }
-            
-            return results.sort((a, b) => b.score - a.score).map(r => r.project);
+            return false;
         }
 
-        // ============ 意图识别 ============
-        function detectIntent(q) {
-            const intents = [];
-            
-            // 查询意图
-            if (/项目.*(情况|详情|信息|状态)/.test(q) || /^(查|问|看|找).*(项目|合同|收款)/.test(q)) 
-                intents.push('query_project');
-            if (/活跃|进行中/.test(q)) intents.push('active_projects');
-            if (/待收款.*(最多|排名|排行|top|TOP)/.test(q) || /哪个.*待收款.*多/.test(q)) intents.push('pending_top');
-            if (/已收款|实际收款|收到款/.test(q)) intents.push('received');
-            if (/收款进度|收款情况/.test(q) || /2026.*收款/.test(q)) intents.push('collection_progress');
-            if (/甲方|客户|联系方式|通讯录|对接人/.test(q)) intents.push('clients');
-            if (/专业.*分布|方向.*统计/.test(q)) intents.push('field_distribution');
-            if (/最大|最多|合同额.*(排名|排行|top)/.test(q) || /哪个.*合同.*大/.test(q)) intents.push('contract_top');
-            if (/概览|总.*情况|总.*多少|总体/.test(q)) intents.push('overview');
-            if (/文件|合同.*下载|文档/.test(q)) intents.push('files');
-            if (/阶段|可研|初设|收尾|立项|招采|前期/.test(q)) intents.push('phase');
-            if (/负责/.test(q) && /的.*项目/.test(q)) intents.push('by_person');
-            
-            return intents.length > 0 ? intents : ['fuzzy'];
-        }
-
-        // ============ 主查询处理 ============
         function processAiQuery(q) {
             const activeProjects = PROJECTS.filter(p => p.phase !== '撤销立项');
             const nonZeroProjects = activeProjects.filter(p => p.contract > 0);
-            const intents = detectIntent(q);
-            
-            // === 意图路由 ===
-            
-            // 活跃项目
-            if (intents.includes('active_projects')) {
+
+            // 1. 项目查询 - match project name
+            const matchedProjects = activeProjects.filter(p => fuzzyMatch(q, p.name));
+            if (matchedProjects.length > 0 && matchedProjects.length <= 5 && q.length >= 2) {
+                // Check if the query is specifically about a project (not a general question)
+                const generalKeywords = ['活跃', '分布', '总', '多少', '哪些', '所有', '待收', '收到', '进度', '甲方', '客户', '联系方式', '通讯录', '趋势', '统计', '概览', '概要', '汇总', '最大', '最多', '排名', '排行', 'top'];
+                const isGeneral = generalKeywords.some(k => q.includes(k));
+                if (!isGeneral || matchedProjects.length === 1) {
+                    let html = '找到 <span class="highlight">' + matchedProjects.length + '</span> 个相关项目：';
+                    matchedProjects.forEach(p => { html += projectCard(p); });
+                    return html;
+                }
+            }
+
+            // 2. 活跃项目
+            if (q.includes('活跃') || q.includes('进行中') || (q.includes('当前') && q.includes('项目') && !q.includes('所有'))) {
                 const doing = activeProjects.filter(p => ['进行中', '可研编制', '初设编制', '项目建议书编制'].includes(p.phase));
                 let html = '当前活跃项目共 <span class="highlight">' + doing.length + '</span> 个：';
                 doing.forEach(p => { html += projectCard(p); });
                 return html;
             }
-            
-            // 待收款TOP
-            if (intents.includes('pending_top')) {
+
+            // 3. 待收款最多
+            if (q.includes('待收款') && (q.includes('最多') || q.includes('top') || q.includes('排名') || q.includes('排行'))) {
                 const sorted = nonZeroProjects.filter(p => p.pending > 0).sort((a,b) => b.pending - a.pending).slice(0, 8);
                 let html = '待收款TOP项目：';
                 sorted.forEach(p => { html += projectCard(p); });
                 return html;
             }
-            
-            // 已收款
-            if (intents.includes('received') && !intents.includes('collection_progress')) {
+
+            // 4. 已收款/实际收款
+            if (q.includes('收到款') || q.includes('已收款') || q.includes('实际收款') || (q.includes('最近') && q.includes('收款'))) {
                 const withActual = activeProjects.filter(p => {
                     const actual = (p.aq1||0)+(p.aq2||0)+(p.aq3||0)+(p.aq4||0);
                     return actual > 0;
                 });
                 if (withActual.length === 0) {
-                    return '目前2026年各项目暂无实际收款记录。';
+                    return '目前2026年各项目暂无实际收款记录（Q2实际收款23.79万来自"生态产品价值统一核算信息平台建设采购项目"，属于跨年项目）。';
                 }
                 let html = '已有实际收款的项目共 <span class="highlight">' + withActual.length + '</span> 个：';
                 withActual.forEach(p => { html += projectCard(p); });
                 return html;
             }
-            
-            // 收款进度
-            if (intents.includes('collection_progress')) {
-                const totalPlan = Object.values(PLAN_DATA).reduce((s,qq) => s + qq.research + qq.develop + qq.service, 0);
-                const totalActual = Object.values(ACTUAL_DATA).reduce((s,qq) => s + qq.research + qq.develop + qq.service, 0);
+
+            // 5. 收款进度
+            if (q.includes('收款进度') || q.includes('收款情况') || (q.includes('2026') && q.includes('收款'))) {
+                const totalPlan = Object.values(PLAN_DATA).reduce((s,q2) => s + q2.research + q2.develop + q2.service, 0);
+                const totalActual = Object.values(ACTUAL_DATA).reduce((s,q2) => s + q2.research + q2.develop + q2.service, 0);
                 const pct = totalPlan > 0 ? (totalActual / totalPlan * 100).toFixed(1) : 0;
                 let html = '📊 <strong>2026年收款进度</strong><br><br>';
                 html += '计划收款：<span class="highlight">' + totalPlan.toFixed(2) + '万</span><br>';
                 html += '实际收款：<span class="highlight" style="color:#10b981">' + totalActual.toFixed(2) + '万</span><br>';
                 html += '完成率：<span class="highlight">' + pct + '%</span><br><br>';
+                
                 const quarters = ['Q1','Q2','Q3','Q4'];
                 const keys = ['q1','q2','q3','q4'];
                 html += '<div class="project-card">';
@@ -2662,35 +2581,39 @@ const FILE_INDEX = {
                 html += '</div>';
                 return html;
             }
-            
-            // 甲方/客户
-            if (intents.includes('clients')) {
+
+            // 6. 甲方/客户/联系方式
+            if (q.includes('甲方') || q.includes('客户') || q.includes('联系方式') || q.includes('通讯录') || q.includes('对接人')) {
                 const withContact = CLIENTS.filter(c => c.contact);
-                const specificClient = withContact.filter(c => scoreMatch(q, c.name) >= 30 || (c.contact && scoreMatch(q, c.contact) >= 30));
+                // Check if asking about a specific client
+                const specificClient = withContact.filter(c => fuzzyMatch(q, c.client) || (c.contact && fuzzyMatch(q, c.contact)));
                 if (specificClient.length > 0) {
                     let html = '找到相关客户信息：';
                     specificClient.forEach(c => {
                         html += '<div class="project-card">';
-                        html += '<div class="pc-name">' + c.name + '</div>';
-                        html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + c.contact + (c.position ? ' · ' + c.position : '') + '</span></div>';
+                        html += '<div class="pc-name">' + c.client + '</div>';
+                        html += '<div class="pc-row"><span>性质</span><span class="pc-val">' + (c.type||'-') + '</span></div>';
+                        html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + c.contact + '</span></div>';
+                        if (c.position) html += '<div class="pc-row"><span>职务</span><span class="pc-val">' + c.position + '</span></div>';
                         if (c.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + c.phone + '</span></div>';
                         html += '</div>';
                     });
                     return html;
                 }
+                
                 let html = '有联系方式的甲方共 <span class="highlight">' + withContact.length + '</span> 家：<br><br>';
                 withContact.forEach(c => {
                     html += '<div class="project-card">';
-                    html += '<div class="pc-name">' + c.name + '</div>';
+                    html += '<div class="pc-name">' + c.client + '</div>';
                     html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + c.contact + (c.position ? ' · ' + c.position : '') + '</span></div>';
                     if (c.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + c.phone + '</span></div>';
                     html += '</div>';
                 });
                 return html;
             }
-            
-            // 专业方向分布
-            if (intents.includes('field_distribution')) {
+
+            // 7. 专业方向分布
+            if (q.includes('专业') && (q.includes('分布') || q.includes('方向') || q.includes('统计'))) {
                 const fieldMap = {};
                 activeProjects.forEach(p => {
                     const f = getField(p.name);
@@ -2710,9 +2633,34 @@ const FILE_INDEX = {
                 });
                 return html;
             }
-            
-            // 合同额TOP
-            if (intents.includes('contract_top')) {
+
+            // 8. 某个专业方向的项目
+            const fieldKeywords = {'咨询': '咨询工作', '智慧环境': '智慧环境', '工程协同': '工程协同', '智慧市政': '智慧市政', 'AI': 'AI智能化', '智能化': 'AI智能化', '运营': '城市/社区运营', '规划': '规划行业'};
+            for (const [kw, fieldName] of Object.entries(fieldKeywords)) {
+                if (q.includes(kw) && !q.includes('分布')) {
+                    const fProjects = activeProjects.filter(p => getField(p.name) === fieldName);
+                    if (fProjects.length > 0) {
+                        let html = '<strong>' + fieldName + '</strong>方向共 <span class="highlight">' + fProjects.length + '</span> 个项目：';
+                        fProjects.forEach(p => { html += projectCard(p); });
+                        return html;
+                    }
+                }
+            }
+
+            // 9. 负责人相关
+            const persons = ['胡晓飞', '韩江雪', '袁誉菲', '欧阳玲', '石名扬', '李承涛', '汪凯', '刘文娟', '袁富林', '夏丽'];
+            const matchedPerson = persons.find(p => q.includes(p));
+            if (matchedPerson) {
+                const pProjects = activeProjects.filter(p2 => getPerson(p2.name) === matchedPerson);
+                if (pProjects.length > 0) {
+                    let html = '<strong>' + matchedPerson + '</strong>负责的项目共 <span class="highlight">' + pProjects.length + '</span> 个：';
+                    pProjects.forEach(p => { html += projectCard(p); });
+                    return html;
+                }
+            }
+
+            // 10. 合同额最大/最大项目
+            if (q.includes('最大') || q.includes('合同额最多') || (q.includes('top') && !q.includes('待收'))) {
                 const sorted = nonZeroProjects.sort((a,b) => b.contract - a.contract).slice(0, 5);
                 let html = '合同额TOP5项目：';
                 sorted.forEach((p, i) => {
@@ -2723,96 +2671,36 @@ const FILE_INDEX = {
                 });
                 return html;
             }
-            
-            // 总体概览
-            if (intents.includes('overview')) {
-                const totalContract = nonZeroProjects.reduce((s,p) => s + p.contract, 0);
-                const totalPending = nonZeroProjects.reduce((s,p) => s + p.pending, 0);
-                const typeMap = {};
-                nonZeroProjects.forEach(p => { typeMap[p.type] = (typeMap[p.type]||0) + 1; });
-                let html = '<strong>经营概览</strong><br><br>';
-                html += '<div class="project-card">';
-                html += '<div class="pc-row"><span>总项目数</span><span class="pc-val">' + activeProjects.length + '个</span></div>';
-                html += '<div class="pc-row"><span>有效项目</span><span class="pc-val">' + nonZeroProjects.length + '个</span></div>';
-                html += '<div class="pc-row"><span>合同总额</span><span class="pc-val" style="color:#ffa726">' + totalContract.toFixed(2) + '万</span></div>';
-                html += '<div class="pc-row"><span>待收款总额</span><span class="pc-val">' + totalPending.toFixed(2) + '万</span></div>';
-                html += '<div class="pc-row"><span>收款率</span><span class="pc-val" style="color:#10b981">' + (totalContract > 0 ? ((totalContract-totalPending)/totalContract*100).toFixed(1) : 0) + '%</span></div>';
-                html += '</div><br>';
-                html += '<strong>按类型：</strong><br>';
-                Object.entries(typeMap).forEach(([t, c]) => { html += getTypeTag(t) + ' ' + c + '个 &nbsp;'; });
-                return html;
-            }
-            
-            // 阶段查询
-            if (intents.includes('phase')) {
-                const phaseMap = {'待收尾': '待收尾款', '收尾': '待收尾款', '立项': '已立项未招采', '招采': '已立项未招采', '可研': '可研编制', '初设': '初设编制', '建议书': '项目建议书编制', '前期': '前期跟进'};
-                for (const [kw, phaseName] of Object.entries(phaseMap)) {
-                    if (q.includes(kw)) {
-                        const phProjects = activeProjects.filter(p => p.phase === phaseName || (kw === '前期' && p.phase === '前期跟进'));
-                        if (phProjects.length > 0) {
-                            let html = '"' + phaseName + '"阶段项目共 <span class="highlight">' + phProjects.length + '</span> 个：';
-                            phProjects.forEach(p => { html += projectCard(p); });
-                            return html;
-                        }
-                    }
-                }
-            }
-            
-            // 负责人查询
-            if (intents.includes('by_person')) {
-                const persons = ['胡晓飞', '韩江雪', '袁誉菲', '欧阳玲', '石名扬', '李承涛', '汪凯', '刘文娟', '袁富林', '夏丽'];
-                const matchedPerson = persons.find(p => q.includes(p));
-                if (matchedPerson) {
-                    const pProjects = activeProjects.filter(p2 => getPerson(p2.name) === matchedPerson);
-                    if (pProjects.length > 0) {
-                        let html = '<strong>' + matchedPerson + '</strong>负责的项目共 <span class="highlight">' + pProjects.length + '</span> 个：';
-                        pProjects.forEach(p => { html += projectCard(p); });
+
+            // 11. 阶段相关
+            const phaseMap = {'待收尾': '待收尾款', '收尾': '待收尾款', '立项': '已立项未招采', '招采': '已立项未招采', '可研': '可研编制', '初设': '初设编制', '建议书': '项目建议书编制', '前期': '前期跟进'};
+            for (const [kw, phaseName] of Object.entries(phaseMap)) {
+                if (q.includes(kw)) {
+                    const phProjects = activeProjects.filter(p => p.phase === phaseName || (kw === '前期' && p.phase === '前期跟进'));
+                    if (phProjects.length > 0) {
+                        let html = '"' + phaseName + '"阶段项目共 <span class="highlight">' + phProjects.length + '</span> 个：';
+                        phProjects.forEach(p => { html += projectCard(p); });
                         return html;
                     }
                 }
             }
-            
-            // 专业方向项目查询（非分布）
-            const fieldKeywords = {'咨询': '咨询工作', '智慧环境': '智慧环境', '工程协同': '工程协同', '智慧市政': '智慧市政', 'AI': 'AI智能化', '智能化': 'AI智能化', '运营': '城市/社区运营', '规划': '规划行业', '城市设计': '城市设计', '测绘': '测绘'};
-            for (const [kw, fieldName] of Object.entries(fieldKeywords)) {
-                if (q.includes(kw) && !q.includes('分布') && !q.includes('统计')) {
-                    const fProjects = activeProjects.filter(p => getField(p.name) === fieldName);
-                    if (fProjects.length > 0) {
-                        let html = '<strong>' + fieldName + '</strong>方向共 <span class="highlight">' + fProjects.length + '</span> 个项目：';
-                        fProjects.forEach(p => { html += projectCard(p); });
-                        return html;
-                    }
-                }
-            }
-            
-            // === 项目模糊匹配（所有意图之后，作为通用匹配） ===
-            const matched = matchProjects(q, activeProjects);
-            if (matched.length >= 1 && matched.length <= 5) {
-                let html = '找到 <span class="highlight">' + matched.length + '</span> 个相关项目：';
-                matched.forEach(p => { html += projectCard(p); });
-                return html;
-            }
-            if (matched.length > 5) {
-                let html = '找到 <span class="highlight">' + matched.length + '</span> 个相关项目，显示前5个：';
-                matched.slice(0, 5).forEach(p => { html += projectCard(p); });
-                html += '<br><span style="color:var(--text-muted);font-size:12px">还有' + (matched.length - 5) + '个项目，可以缩小搜索范围查看</span>';
-                return html;
-            }
-            
-            // === 文件查询 ===
-            if (intents.includes('files')) {
-                const fileMatched = matchProjects(q, activeProjects);
+
+            // 12. 文件/合同下载
+            if (q.includes('合同') || q.includes('文件') || q.includes('下载') || q.includes('文档')) {
+                // Helper: get files for a project
                 function getProjectFiles(projectName) {
                     const docPath = getDocPath(projectName);
                     if (!docPath) return [];
                     const dirName = docPath.split('/').filter(Boolean).pop();
                     return FILE_INDEX[dirName] || [];
                 }
+                
                 function formatSize(bytes) {
                     if (bytes < 1024) return bytes + 'B';
                     if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + 'KB';
                     return (bytes/1024/1024).toFixed(1) + 'MB';
                 }
+                
                 function renderFileList(files) {
                     if (!files.length) return '<br><span style="color:var(--text-muted);font-size:12px">暂无上传文档</span>';
                     let html = '';
@@ -2822,9 +2710,11 @@ const FILE_INDEX = {
                     });
                     return html;
                 }
-                if (fileMatched.length > 0) {
+                
+                // Check if querying about a specific project
+                if (matchedProjects.length > 0) {
                     let html = '找到相关项目的文档：';
-                    fileMatched.forEach(p => {
+                    matchedProjects.forEach(p => {
                         const files = getProjectFiles(p.name);
                         html += '<div class="project-card">';
                         html += '<div class="pc-name">' + p.name + '</div>';
@@ -2833,6 +2723,8 @@ const FILE_INDEX = {
                     });
                     return html;
                 }
+                
+                // Show all projects with files
                 const projectsWithFiles = activeProjects.filter(p => getProjectFiles(p.name).length > 0);
                 if (projectsWithFiles.length > 0) {
                     let html = '当前有 <span class="highlight">' + projectsWithFiles.length + '</span> 个项目已上传文档：<br><br>';
@@ -2845,15 +2737,46 @@ const FILE_INDEX = {
                     });
                     return html;
                 }
-                return '当前暂无项目上传文档。你可以输入具体项目名称来查询该项目的相关文件。';
+                
+                return '当前暂无项目上传文档。各项目目录已创建，文件将在后续录入。<br>你可以输入具体项目名称来查询该项目的相关文件。';
             }
-            
-            // === Fallback ===
+
+            // 13. 总体概览
+            if (q.includes('总') && (q.includes('概览') || q.includes('情况') || q.includes('多少') || q.includes('统计'))) {
+                const totalContract = nonZeroProjects.reduce((s,p) => s + p.contract, 0);
+                const totalPending = nonZeroProjects.reduce((s,p) => s + p.pending, 0);
+                const typeMap = {};
+                nonZeroProjects.forEach(p => { typeMap[p.type] = (typeMap[p.type]||0) + 1; });
+                
+                let html = '<strong>经营概览</strong><br><br>';
+                html += '<div class="project-card">';
+                html += '<div class="pc-row"><span>总项目数</span><span class="pc-val">' + activeProjects.length + '个</span></div>';
+                html += '<div class="pc-row"><span>有效项目</span><span class="pc-val">' + nonZeroProjects.length + '个</span></div>';
+                html += '<div class="pc-row"><span>合同总额</span><span class="pc-val" style="color:#ffa726">' + totalContract.toFixed(2) + '万</span></div>';
+                html += '<div class="pc-row"><span>待收款总额</span><span class="pc-val">' + totalPending.toFixed(2) + '万</span></div>';
+                html += '<div class="pc-row"><span>收款率</span><span class="pc-val" style="color:#10b981">' + (totalContract > 0 ? ((totalContract-totalPending)/totalContract*100).toFixed(1) : 0) + '%</span></div>';
+                html += '</div><br>';
+                html += '<strong>按类型：</strong><br>';
+                Object.entries(typeMap).forEach(([t, c]) => {
+                    html += getTypeTag(t) + ' ' + c + '个 &nbsp;';
+                });
+                return html;
+            }
+
+            // 14. Default: search by keywords
+            if (matchedProjects.length > 5) {
+                let html = '找到 <span class="highlight">' + matchedProjects.length + '</span> 个相关项目，显示前5个：';
+                matchedProjects.slice(0, 5).forEach(p => { html += projectCard(p); });
+                html += '<br><span style="color:var(--text-muted);font-size:12px">还有' + (matchedProjects.length - 5) + '个项目，可以缩小搜索范围查看</span>';
+                return html;
+            }
+
+            // 15. Fallback
             let html = '我没有完全理解你的问题 🤔<br><br>你可以试试这样问：<br>';
-            html += '• "龙川项目的情况" — 查询项目详情<br>';
+            html += '• "XX项目的情况" — 查询项目详情<br>';
             html += '• "活跃项目有哪些" — 查看进行中项目<br>';
-            html += '• "哪个项目待收款最多" — 查看待收款排名<br>';
-            html += '• "已收款的项目" — 查看实际收款<br>';
+            html += '• "待收款最多的项目" — 查看待收款排名<br>';
+            html += '• "最近收到款的项目" — 查看已收款项目<br>';
             html += '• "甲方联系方式" — 查看客户通讯录<br>';
             html += '• "2026收款进度" — 查看计划vs实际<br>';
             html += '• "智慧环境方向的项目" — 按专业方向查询<br>';
