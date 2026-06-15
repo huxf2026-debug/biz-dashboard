@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数字智能创新中心 · 经营看板</title>
+    <title>数字智能创新中心 · 业务看板</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
     <style>
         * {
@@ -34,359 +34,65 @@
             min-height: 100vh;
         }
 
-
-        /* AI助手侧边面板 */
-        .ai-panel-toggle {
-            position: fixed;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px;
-            height: 120px;
-            background: linear-gradient(180deg, #00d4ff, #0099cc);
-            border-radius: 12px 0 0 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            z-index: 1000;
-            transition: width 0.3s, background 0.3s;
-            box-shadow: -4px 0 15px rgba(0, 212, 255, 0.3);
-            writing-mode: vertical-rl;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 4px;
-            padding: 8px 0;
-            user-select: none;
-        }
-
-        .ai-panel-toggle:hover {
-            background: linear-gradient(180deg, #00e5ff, #00b8d4);
-            box-shadow: -6px 0 20px rgba(0, 212, 255, 0.5);
-        }
-
-        .ai-panel-toggle .ai-icon {
-            font-size: 18px;
-            margin-bottom: 6px;
-            writing-mode: horizontal-tb;
-        }
-
-        .ai-panel {
-            position: fixed;
-            right: -420px;
+        /* 顶部导航Tab */
+        .top-nav {
+            position: sticky;
             top: 0;
-            width: 420px;
-            height: 100vh;
+            z-index: 100;
             background: var(--bg-primary);
-            border-left: 1px solid var(--border-color);
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .ai-panel.open {
-            right: 0;
-        }
-
-        .ai-panel-header {
-            padding: 16px 20px;
-            background: linear-gradient(135deg, #141938, #1a2555);
             border-bottom: 1px solid var(--border-color);
+            padding: 0 20px;
+        }
+
+        .top-nav-inner {
+            max-width: 1600px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0;
         }
 
-        .ai-panel-header h3 {
-            color: var(--accent-blue);
-            font-size: 16px;
+        .top-nav h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding: 16px 0;
+        }
+
+        .top-tabs {
             display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ai-panel-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 20px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .ai-panel-close:hover {
-            background: rgba(255,255,255,0.1);
-            color: var(--text-primary);
-        }
-
-        .ai-panel-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .ai-msg {
-            max-width: 90%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            line-height: 1.6;
-            word-break: break-word;
-        }
-
-        .ai-msg.bot {
-            align-self: flex-start;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            border-bottom-left-radius: 4px;
-        }
-
-        .ai-msg.user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #0099cc, #00d4ff);
-            color: #fff;
-            border-bottom-right-radius: 4px;
-        }
-
-        .ai-msg .highlight {
-            color: var(--accent-gold);
-            font-weight: 600;
-        }
-
-        .ai-msg .tag {
-            display: inline-block;
-            padding: 1px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            margin: 2px 2px;
-        }
-
-        .ai-msg .tag-type-research { background: rgba(59,130,246,0.2); color: #60a5fa; }
-        .ai-msg .tag-type-develop { background: rgba(16,185,129,0.2); color: #34d399; }
-        .ai-msg .tag-type-service { background: rgba(245,158,11,0.2); color: #fbbf24; }
-        .ai-msg .tag-phase-active { background: rgba(0,212,255,0.15); color: #00d4ff; }
-        .ai-msg .tag-phase-pending { background: rgba(255,167,38,0.15); color: #ffa726; }
-        .ai-msg .tag-phase-done { background: rgba(16,185,129,0.15); color: #10b981; }
-
-        .ai-msg .project-card {
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin: 6px 0;
-        }
-
-        .ai-msg .project-card .pc-name {
-            font-weight: 600;
-            color: var(--accent-blue);
-            margin-bottom: 4px;
-        }
-
-        .ai-msg .project-card .pc-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin: 2px 0;
-        }
-
-        .ai-msg .project-card .pc-row .pc-val {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        .ai-msg .doc-link {
-            display: inline-flex;
-            align-items: center;
             gap: 4px;
-            color: var(--accent-blue);
-            text-decoration: none;
-            font-size: 12px;
-            padding: 3px 8px;
-            border: 1px solid rgba(0,212,255,0.3);
-            border-radius: 6px;
-            margin: 3px 2px;
-            transition: background 0.2s;
         }
 
-        .ai-msg .doc-link:hover {
-            background: rgba(0,212,255,0.1);
-        }
-
-        .ai-quick-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 0 16px 12px;
-            flex-shrink: 0;
-        }
-
-        .ai-quick-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 5px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .ai-quick-btn:hover {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-            background: rgba(0,212,255,0.05);
-        }
-
-        .ai-panel-input {
-            padding: 12px 16px;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-card);
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .ai-panel-input input {
-            flex: 1;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px 14px;
-            color: var(--text-primary);
-            font-size: 13px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .ai-panel-input input:focus {
-            border-color: var(--accent-blue);
-        }
-
-        .ai-panel-input input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .ai-panel-input button {
-            background: linear-gradient(135deg, #0099cc, #00d4ff);
+        .top-tab-btn {
+            padding: 12px 20px;
+            background: transparent;
             border: none;
-            border-radius: 8px;
-            padding: 10px 18px;
-            color: #fff;
+            color: var(--text-secondary);
             font-size: 14px;
             cursor: pointer;
-            transition: opacity 0.2s;
-            flex-shrink: 0;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
         }
 
-        .ai-panel-input button:hover {
-            opacity: 0.85;
+        .top-tab-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
         }
 
-        .ai-welcome {
-            text-align: center;
-            padding: 20px 10px;
+        .top-tab-btn.active {
+            background: var(--bg-card);
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        .top-time {
             color: var(--text-secondary);
             font-size: 13px;
-            line-height: 1.8;
-        }
-
-        .ai-welcome .ai-logo {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
-
-        .ai-welcome strong {
-            color: var(--accent-blue);
-        }
-
-        @media (max-width: 768px) {
-            .ai-panel { width: 100vw; right: -100vw; }
-            .ai-panel-toggle { width: 32px; height: 80px; font-size: 12px; }
-        }
-
-        /* 密码验证页面 */
-        .password-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .password-box {
-            background: var(--bg-card);
-            padding: 40px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .password-box h2 {
-            color: var(--accent-blue);
-            margin-bottom: 24px;
-            font-size: 24px;
-        }
-
-        .password-box input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 16px;
-            text-align: center;
-            letter-spacing: 4px;
-            transition: border-color 0.3s;
-        }
-
-        .password-box input:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-        }
-
-        .password-box button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 20px;
-            background: var(--accent-blue);
-            color: var(--bg-primary);
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .password-box button:hover {
-            background: #00b8e6;
-        }
-
-        .password-error {
-            color: var(--danger);
-            margin-top: 12px;
-            font-size: 14px;
-            display: none;
         }
 
         /* 主内容区 */
@@ -399,30 +105,6 @@
 
         .main-content.show {
             display: block;
-        }
-
-        /* 顶部标题栏 */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 24px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-blue), #ffffff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header-time {
-            color: var(--text-secondary);
-            font-size: 14px;
         }
 
         /* 总览卡片区 */
@@ -475,7 +157,6 @@
             color: var(--text-secondary);
             margin-left: 4px;
         }
-
 
         /* 项目概览统计卡 */
         .project-summary-cards {
@@ -760,7 +441,7 @@
 
         .detail-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
         }
 
@@ -779,6 +460,314 @@
         .detail-item .value {
             color: var(--text-primary);
             font-size: 14px;
+        }
+
+        /* 项目文件区域 */
+        .project-files {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .project-files h4 {
+            color: var(--accent-blue);
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .file-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 12px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .file-item:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .file-item .file-icon {
+            font-size: 14px;
+        }
+
+        .file-item .file-size {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        /* 项目人员分配 */
+        .project-members {
+            background: rgba(255, 167, 38, 0.05);
+            border: 1px solid rgba(255, 167, 38, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .project-members h4 {
+            color: var(--accent-gold);
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .edit-members-btn {
+            padding: 2px 8px;
+            background: transparent;
+            border: 1px solid var(--accent-gold);
+            border-radius: 4px;
+            color: var(--accent-gold);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-members-btn:hover {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+        }
+
+        .member-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .member-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(255, 167, 38, 0.2);
+            color: var(--accent-gold);
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .no-members {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        /* 人员选择弹窗 */
+        .member-select-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .member-select-modal.show {
+            display: flex;
+        }
+
+        .member-select-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .member-select-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .member-select-header h4 {
+            color: var(--accent-gold);
+            font-size: 18px;
+        }
+
+        .member-select-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .member-select-close:hover {
+            color: var(--text-primary);
+        }
+
+        .member-select-group {
+            margin-bottom: 16px;
+        }
+
+        .member-select-group-title {
+            color: var(--accent-blue);
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .member-select-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .member-option {
+            padding: 6px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .member-option:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .member-option.selected {
+            background: rgba(255, 167, 38, 0.2);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .member-select-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .member-select-footer button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .member-select-footer .cancel-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .member-select-footer .cancel-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .member-select-footer .save-btn {
+            background: var(--accent-gold);
+            border: none;
+            color: var(--bg-primary);
+        }
+
+        .member-select-footer .save-btn:hover {
+            background: #ffb74d;
+        }
+
+        /* 部门人员Tab样式 */
+        .dept-member-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .dept-member-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .dept-member-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .dept-member-role {
+            font-size: 12px;
+            color: var(--accent-blue);
+            padding: 2px 8px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .dept-member-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .dept-member-stat {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .dept-member-stat strong {
+            color: var(--accent-gold);
+            font-size: 16px;
+        }
+
+        .dept-member-projects {
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        .dept-member-projects h5 {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .dept-project-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin: 2px;
+        }
+
+        .dept-project-tag:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
         }
 
         /* 状态标签 */
@@ -947,54 +936,6 @@
             color: var(--bg-primary);
         }
 
-        /* 响应式 */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .overview-card .value {
-                font-size: 28px;
-            }
-
-            .charts-section {
-                grid-template-columns: 1fr;
-            }
-
-            .pie-charts {
-                grid-template-columns: 1fr;
-            }
-
-            .chart-container {
-                height: 250px;
-            }
-
-            .filter-row {
-                flex-direction: column;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-
-            .filter-buttons {
-                width: 100%;
-                overflow-x: auto;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            th, td {
-                padding: 8px 4px;
-            }
-
-            .team-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         /* 统计数字动画 */
         .stat-animate {
             animation: countUp 1s ease-out;
@@ -1059,19 +1000,413 @@
             color: var(--text-muted);
         }
 
-        .loading::after {
-            content: "";
-            width: 24px;
-            height: 24px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--accent-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 12px;
+        /* AI助手侧边面板 */
+        .ai-panel-toggle {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 120px;
+            background: linear-gradient(180deg, #00d4ff, #0099cc);
+            border-radius: 12px 0 0 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: width 0.3s, background 0.3s;
+            box-shadow: -4px 0 15px rgba(0, 212, 255, 0.3);
+            writing-mode: vertical-rl;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            padding: 8px 0;
+            user-select: none;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .ai-panel-toggle:hover {
+            background: linear-gradient(180deg, #00e5ff, #00b8d4);
+            box-shadow: -6px 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .ai-panel-toggle .ai-icon {
+            font-size: 18px;
+            margin-bottom: 6px;
+            writing-mode: horizontal-tb;
+        }
+
+        .ai-panel {
+            position: fixed;
+            right: -420px;
+            top: 0;
+            width: 420px;
+            height: 100vh;
+            background: var(--bg-primary);
+            border-left: 1px solid var(--border-color);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .ai-panel.open {
+            right: 0;
+        }
+
+        .ai-panel-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #141938, #1a2555);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .ai-panel-header h3 {
+            color: var(--accent-blue);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-panel-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .ai-panel-close:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+        }
+
+        .ai-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-msg {
+            max-width: 90%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .ai-msg.bot {
+            align-self: flex-start;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .ai-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0099cc, #00d4ff);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-msg .highlight {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .ai-msg .tag {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin: 2px 2px;
+        }
+
+        .ai-msg .tag-type-research { background: rgba(59,130,246,0.2); color: #60a5fa; }
+        .ai-msg .tag-type-develop { background: rgba(16,185,129,0.2); color: #34d399; }
+        .ai-msg .tag-type-service { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .ai-msg .tag-phase-active { background: rgba(0,212,255,0.15); color: #00d4ff; }
+        .ai-msg .tag-phase-pending { background: rgba(255,167,38,0.15); color: #ffa726; }
+        .ai-msg .tag-phase-done { background: rgba(16,185,129,0.15); color: #10b981; }
+
+        .ai-msg .project-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 6px 0;
+        }
+
+        .ai-msg .project-card .pc-name {
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }
+
+        .ai-msg .project-card .pc-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 2px 0;
+        }
+
+        .ai-msg .project-card .pc-row .pc-val {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .ai-msg .doc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 12px;
+            padding: 3px 8px;
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 6px;
+            margin: 3px 2px;
+            transition: background 0.2s;
+        }
+
+        .ai-msg .doc-link:hover {
+            background: rgba(0,212,255,0.1);
+        }
+
+        .ai-quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0 16px 12px;
+            flex-shrink: 0;
+        }
+
+        .ai-quick-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-quick-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(0,212,255,0.05);
+        }
+
+        .ai-panel-input {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-card);
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .ai-panel-input input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .ai-panel-input input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .ai-panel-input input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .ai-panel-input button {
+            background: linear-gradient(135deg, #0099cc, #00d4ff);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        .ai-panel-input button:hover {
+            opacity: 0.85;
+        }
+
+        .ai-welcome {
+            text-align: center;
+            padding: 20px 10px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .ai-welcome .ai-logo {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .ai-welcome strong {
+            color: var(--accent-blue);
+        }
+
+        /* 密码验证页面 */
+        .password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .password-box {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .password-box h2 {
+            color: var(--accent-blue);
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        .password-box input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 4px;
+            transition: border-color 0.3s;
+        }
+
+        .password-box input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .password-box button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .password-box button:hover {
+            background: #00b8e6;
+        }
+
+        .password-error {
+            color: var(--danger);
+            margin-top: 12px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .overview-card .value {
+                font-size: 28px;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .pie-charts {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .filter-buttons {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px 4px;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-tabs {
+                flex-wrap: wrap;
+            }
+
+            .top-tab-btn {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .ai-panel { width: 100vw; right: -100vw; }
+            .ai-panel-toggle { width: 32px; height: 80px; font-size: 12px; }
         }
     </style>
 </head>
@@ -1105,13 +1440,37 @@
         </div>
     </div>
 
-    <!-- 主内容区 -->
-    <div class="main-content" id="mainContent">
-        <header class="header">
-            <h1>数字智能创新中心 · 经营看板</h1>
-            <span class="header-time" id="updateTime"></span>
-        </header>
+    <!-- 人员分配选择弹窗 -->
+    <div class="member-select-modal" id="memberSelectModal">
+        <div class="member-select-content">
+            <div class="member-select-header">
+                <h4>👥 分配项目人员</h4>
+                <button class="member-select-close" onclick="closeMemberSelect()">×</button>
+            </div>
+            <div id="memberSelectBody"></div>
+            <div class="member-select-footer">
+                <button class="cancel-btn" onclick="closeMemberSelect()">取消</button>
+                <button class="save-btn" onclick="saveMemberSelect()">保存</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <h1>数字智能创新中心 · 业务看板</h1>
+            <div class="top-tabs">
+                <button class="top-tab-btn active" data-tab="dashboard" onclick="switchTopTab('dashboard')">📊 经营看板</button>
+                <button class="top-tab-btn" data-tab="projects" onclick="switchTopTab('projects')">📋 业务进展</button>
+                <button class="top-tab-btn" data-tab="members" onclick="switchTopTab('members')">👥 部门人员</button>
+                <button class="top-tab-btn" data-tab="clients" onclick="switchTopTab('clients')">📇 甲方信息</button>
+            </div>
+            <span class="top-time" id="updateTime"></span>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="main-content show" id="dashboardTab">
         <!-- 总览卡片 -->
         <section class="overview-cards">
             <div class="overview-card">
@@ -1222,112 +1581,114 @@
                 <span class="summary-unit">个</span>
             </div>
         </section>
+    </div>
 
-                <!-- Tab 切换 -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('projects')">📋 项目列表</button>
-            <button class="tab-btn" onclick="switchTab('clients')">📇 甲方通讯录</button>
-        </div>
-
-        <!-- 项目列表 -->
-        <div class="tab-content active" id="projectsTab">
-            <div class="filter-section">
-                <div class="filter-row">
-                    <div class="search-box">
-                        <input type="text" id="projectSearch" placeholder="搜索项目名称、甲方、类型..." oninput="filterProjects()">
-                    </div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="全部" onclick="setProjectFilter('全部', 'type')">类型: 全部</button>
-                        <button class="filter-btn" data-filter="研究" onclick="setProjectFilter('研究', 'type')">研究</button>
-                        <button class="filter-btn" data-filter="集成开发" onclick="setProjectFilter('集成开发', 'type')">集成开发</button>
-                        <button class="filter-btn" data-filter="服务" onclick="setProjectFilter('服务', 'type')">服务</button>
-                    </div>
-                    <div class="filter-buttons" style="margin-left: 8px;">
-                        <button class="filter-btn active" data-filter="负责人-全部" onclick="setProjectFilter('全部', 'person')">负责人: 全部</button>
-                        <button class="filter-btn" data-filter="负责人-胡晓飞" onclick="setProjectFilter('胡晓飞', 'person')">胡晓飞</button>
-                        <button class="filter-btn" data-filter="负责人-韩江雪" onclick="setProjectFilter('韩江雪', 'person')">韩江雪</button>
-                        <button class="filter-btn" data-filter="负责人-袁誉菲" onclick="setProjectFilter('袁誉菲', 'person')">袁誉菲</button>
-                        <button class="filter-btn" data-filter="负责人-欧阳玲" onclick="setProjectFilter('欧阳玲', 'person')">欧阳玲</button>
-                        <button class="filter-btn" data-filter="负责人-石名扬" onclick="setProjectFilter('石名扬', 'person')">石名扬</button>
-                    </div>
+    <!-- 业务进展Tab -->
+    <div class="main-content" id="projectsTab">
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="search-box">
+                    <input type="text" id="projectSearch" placeholder="搜索项目名称、甲方、类型..." oninput="filterProjects()">
                 </div>
-                <div class="filter-row" style="margin-top: 12px;">
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="专业-全部" onclick="setProjectFilter('全部', 'field')">专业: 全部</button>
-                        <button class="filter-btn" data-filter="专业-咨询工作" onclick="setProjectFilter('咨询工作', 'field')">咨询工作</button>
-                        <button class="filter-btn" data-filter="专业-智慧环境" onclick="setProjectFilter('智慧环境', 'field')">智慧环境</button>
-                        <button class="filter-btn" data-filter="专业-工程协同" onclick="setProjectFilter('工程协同', 'field')">工程协同</button>
-                        <button class="filter-btn" data-filter="专业-智慧市政" onclick="setProjectFilter('智慧市政', 'field')">智慧市政</button>
-                        <button class="filter-btn" data-filter="专业-AI智能化" onclick="setProjectFilter('AI智能化', 'field')">AI智能化</button>
-                        <button class="filter-btn" data-filter="专业-城市/社区运营" onclick="setProjectFilter('城市/社区运营', 'field')">城市/社区运营</button>
-                        <button class="filter-btn" data-filter="专业-规划行业" onclick="setProjectFilter('规划行业', 'field')">规划行业</button>
-                    </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="全部" onclick="setProjectFilter('全部', 'type')">类型: 全部</button>
+                    <button class="filter-btn" data-filter="研究" onclick="setProjectFilter('研究', 'type')">研究</button>
+                    <button class="filter-btn" data-filter="集成开发" onclick="setProjectFilter('集成开发', 'type')">集成开发</button>
+                    <button class="filter-btn" data-filter="服务" onclick="setProjectFilter('服务', 'type')">服务</button>
+                </div>
+                <div class="filter-buttons" style="margin-left: 8px;">
+                    <button class="filter-btn active" data-filter="负责人-全部" onclick="setProjectFilter('全部', 'person')">负责人: 全部</button>
+                    <button class="filter-btn" data-filter="负责人-胡晓飞" onclick="setProjectFilter('胡晓飞', 'person')">胡晓飞</button>
+                    <button class="filter-btn" data-filter="负责人-韩江雪" onclick="setProjectFilter('韩江雪', 'person')">韩江雪</button>
+                    <button class="filter-btn" data-filter="负责人-袁誉菲" onclick="setProjectFilter('袁誉菲', 'person')">袁誉菲</button>
+                    <button class="filter-btn" data-filter="负责人-欧阳玲" onclick="setProjectFilter('欧阳玲', 'person')">欧阳玲</button>
+                    <button class="filter-btn" data-filter="负责人-石名扬" onclick="setProjectFilter('石名扬', 'person')">石名扬</button>
                 </div>
             </div>
-
-            <div class="table-section">
-                <div class="table-wrapper">
-                    <table id="projectTable">
-                        <thead>
-                            <tr>
-                                <th>展开</th>
-                                <th>项目名称</th>
-                                <th>📁</th>
-                                <th>年份</th>
-                                <th>类型</th>
-                                <th>负责人</th>
-                                <th>专业方向</th>
-                                <th>合同额(万)</th>
-                                <th>当前阶段</th>
-                                <th>待收款(万)</th>
-                                <th>Q1</th>
-                                <th>Q2</th>
-                                <th>Q3</th>
-                                <th>Q4</th>
-                                <th>实际Q1</th><th>实际Q2</th><th>实际Q3</th><th>实际Q4</th><th>甲方单位</th>
-                            </tr>
-                        </thead>
-                        <tbody id="projectTableBody">
-                        </tbody>
-                    </table>
+            <div class="filter-row" style="margin-top: 12px;">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="专业-全部" onclick="setProjectFilter('全部', 'field')">专业: 全部</button>
+                    <button class="filter-btn" data-filter="专业-咨询工作" onclick="setProjectFilter('咨询工作', 'field')">咨询工作</button>
+                    <button class="filter-btn" data-filter="专业-智慧环境" onclick="setProjectFilter('智慧环境', 'field')">智慧环境</button>
+                    <button class="filter-btn" data-filter="专业-工程协同" onclick="setProjectFilter('工程协同', 'field')">工程协同</button>
+                    <button class="filter-btn" data-filter="专业-智慧市政" onclick="setProjectFilter('智慧市政', 'field')">智慧市政</button>
+                    <button class="filter-btn" data-filter="专业-AI智能化" onclick="setProjectFilter('AI智能化', 'field')">AI智能化</button>
+                    <button class="filter-btn" data-filter="专业-城市/社区运营" onclick="setProjectFilter('城市/社区运营', 'field')">城市/社区运营</button>
+                    <button class="filter-btn" data-filter="专业-规划行业" onclick="setProjectFilter('规划行业', 'field')">规划行业</button>
                 </div>
             </div>
         </div>
 
-        <!-- 甲方通讯录 -->
-        <div class="tab-content" id="clientsTab">
-            <div class="filter-section">
-                <div class="filter-row">
-                    <div class="search-box">
-                        <input type="text" id="clientSearch" placeholder="搜索单位名称、对接人..." oninput="filterClients()">
-                    </div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-type="全部" onclick="setClientFilter('全部')">全部</button>
-                        <button class="filter-btn" data-type="政府部门" onclick="setClientFilter('政府部门')">政府部门</button>
-                        <button class="filter-btn" data-type="头部科技公司" onclick="setClientFilter('头部科技公司')">头部科技</button>
-                        <button class="filter-btn" data-type="国央企" onclick="setClientFilter('国央企')">国央企</button>
-                        <button class="filter-btn" data-type="企业" onclick="setClientFilter('企业')">企业</button>
-                        <button class="filter-btn" data-type="规划院同行" onclick="setClientFilter('规划院同行')">规划院</button>
-                    </div>
+        <div class="table-section">
+            <div class="table-wrapper">
+                <table id="projectTable">
+                    <thead>
+                        <tr>
+                            <th>展开</th>
+                            <th>项目名称</th>
+                            <th>📁</th>
+                            <th>年份</th>
+                            <th>类型</th>
+                            <th>负责人</th>
+                            <th>专业方向</th>
+                            <th>合同额(万)</th>
+                            <th>当前阶段</th>
+                            <th>待收款(万)</th>
+                            <th>Q1</th>
+                            <th>Q2</th>
+                            <th>Q3</th>
+                            <th>Q4</th>
+                            <th>实际Q1</th><th>实际Q2</th><th>实际Q3</th><th>实际Q4</th><th>甲方单位</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 部门人员Tab -->
+    <div class="main-content" id="membersTab">
+        <div class="table-section">
+            <h3>👥 部门人员参与项目情况</h3>
+            <div id="deptMembersList"></div>
+        </div>
+    </div>
+
+    <!-- 甲方信息Tab -->
+    <div class="main-content" id="clientsTab">
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="search-box">
+                    <input type="text" id="clientSearch" placeholder="搜索单位名称、对接人..." oninput="filterClients()">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-type="全部" onclick="setClientFilter('全部')">全部</button>
+                    <button class="filter-btn" data-type="政府部门" onclick="setClientFilter('政府部门')">政府部门</button>
+                    <button class="filter-btn" data-type="头部科技公司" onclick="setClientFilter('头部科技公司')">头部科技</button>
+                    <button class="filter-btn" data-type="国央企" onclick="setClientFilter('国央企')">国央企</button>
+                    <button class="filter-btn" data-type="企业" onclick="setClientFilter('企业')">企业</button>
+                    <button class="filter-btn" data-type="规划院同行" onclick="setClientFilter('规划院同行')">规划院</button>
                 </div>
             </div>
+        </div>
 
-            <div class="table-section">
-                <div class="table-wrapper">
-                    <table id="clientTable">
-                        <thead>
-                            <tr>
-                                <th>单位名称</th>
-                                <th>单位性质</th>
-                                <th>对接人</th>
-                                <th>职务</th>
-                                <th>联系方式</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clientTableBody">
-                        </tbody>
-                    </table>
-                </div>
+        <div class="table-section">
+            <div class="table-wrapper">
+                <table id="clientTable">
+                    <thead>
+                        <tr>
+                            <th>单位名称</th>
+                            <th>单位性质</th>
+                            <th>对接人</th>
+                            <th>职务</th>
+                            <th>联系方式</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTableBody">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -1422,8 +1783,8 @@
             '内控体系管理助手及智能办公助手技术服务': '/home/coze/projects/内控智能办公/',
             '山海骑遇小程序开发/光明数据采集': '/home/coze/projects/山海骑遇小程序/',
             '碳污协同溯源及空气质量预报支持服务': '/home/coze/projects/碳污协同溯源/',
-            '规划和自然资源公共数据产品建设': '/home/coze/projects/规资数据产品/',
-            '前海智慧规划平台': '/home/coze/projects/前海智慧规划/',
+            '规划和自然资源公共数据产品建设': '/home/coze/biz-dashboard/docs/规资数据产品/',
+            '前海智慧规划平台': '/home/coze/biz-dashboard/docs/前海智慧规划/',
             '成都洪水淹没三维场景构建': '/home/coze/projects/成都洪水三维/',
             '宝安区既有水务设施建模': '/home/coze/projects/宝安水务建模/',
             '城市更新全流程管理系统': '/home/coze/projects/城市更新管理/',
@@ -1440,71 +1801,27 @@
             '生态环境监测中心站2026年定点项目': '/home/coze/projects/生态监测定点/',
             '华富社区鸿蒙智慧党群建设项目': '/home/coze/projects/华富鸿蒙党群/',
             '林芝数字经开空间智慧管理系统项目': '/home/coze/projects/林芝智慧管理/',
-            '通讯井盖AI智慧运维项目': '/home/coze/projects/通讯井盖AI/',
+            '通讯井盖AI智慧运维项目': '/home/coze/biz-dashboard/docs/通讯井盖AI/',
             '笋岗上盖数字孪生协同管控平台': '/home/coze/projects/笋岗数字孪生/'
         };
 
-const FILE_INDEX = {
-  "前海智慧规划": [
-    {
-      "name": "项目概况.md",
-      "category": "文档",
-      "ext": ".md",
-      "size": 335,
-      "url": "/biz-dashboard/docs/前海智慧规划/项目概况.md"
-    }
-  ],
-  "通讯井盖AI": [
-    {
-      "name": "方案概述.md",
-      "category": "文档",
-      "ext": ".md",
-      "size": 445,
-      "url": "/biz-dashboard/docs/通讯井盖AI/方案概述.md"
-    }
-  ],
-  "规资数据产品": [
-    {
-      "name": "合同扫描件.pdf",
-      "category": "合同/文件",
-      "ext": ".pdf",
-      "size": 1103125,
-      "url": "/biz-dashboard/docs/规资数据产品/合同扫描件.pdf"
-    },
-    {
-      "name": "项目计划书.docx",
-      "category": "文档",
-      "ext": ".docx",
-      "size": 185893,
-      "url": "/biz-dashboard/docs/规资数据产品/项目计划书.docx"
-    },
-    {
-      "name": "中标通知书.pdf",
-      "category": "合同/文件",
-      "ext": ".pdf",
-      "size": 98007,
-      "url": "/biz-dashboard/docs/规资数据产品/中标通知书.pdf"
-    },
-    {
-      "name": "实施方案V1.0.docx",
-      "category": "文档",
-      "ext": ".docx",
-      "size": 51136,
-      "url": "/biz-dashboard/docs/规资数据产品/实施方案V1.0.docx"
-    }
-  ],
-  "v2": [
-    {
-      "name": "index.html",
-      "category": "文档",
-      "ext": ".html",
-      "size": 151033,
-      "url": "/biz-dashboard/docs/v2/index.html"
-    }
-  ]
-};
+        // 项目文件索引
+        const FILE_INDEX = {
+            "前海智慧规划": [
+                { "name": "项目概况.md", "category": "文档", "ext": ".md", "size": 335, "url": "../docs/前海智慧规划/项目概况.md" }
+            ],
+            "通讯井盖AI": [
+                { "name": "方案概述.md", "category": "文档", "ext": ".md", "size": 445, "url": "../docs/通讯井盖AI/方案概述.md" }
+            ],
+            "规资数据产品": [
+                { "name": "合同扫描件.pdf", "category": "合同/文件", "ext": ".pdf", "size": 1103125, "url": "../docs/规资数据产品/合同扫描件.pdf" },
+                { "name": "项目计划书.docx", "category": "文档", "ext": ".docx", "size": 185893, "url": "../docs/规资数据产品/项目计划书.docx" },
+                { "name": "中标通知书.pdf", "category": "合同/文件", "ext": ".pdf", "size": 98007, "url": "../docs/规资数据产品/中标通知书.pdf" },
+                { "name": "实施方案V1.0.docx", "category": "文档", "ext": ".docx", "size": 51136, "url": "../docs/规资数据产品/实施方案V1.0.docx" }
+            ]
+        };
 
-        // 年份映射 (0表示不参与统计)
+        // 年份映射
         const YEAR_MAP = {
             '深圳市再生水管线普查数据入库与水质标准研究': 2024,
             '生态产品价值统一核算信息平台建设采购项目': 2024,
@@ -1589,79 +1906,94 @@ const FILE_INDEX = {
             ]
         };
 
-        // 项目数据
-                                const PROJECTS = [
-    { name: '西丽高铁新城全过程一体化协同BIM/CIM应用', type: '集成开发', contract: 1600.0, year: 2026, phase: '可研编制', pending: 1600.0, q1: 0, q2: 0, q3: 0, q4: 500.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '南山区政务服务和数据管理局、南山区发展和改革局', contact: '黄吉娜', position: '科长', phone: '15521236253', leader: '韩江雪', field: '工程协同' },
-    { name: '南山一张图实验室', type: '集成开发', contract: 900.0, year: 2026, phase: '初设编制', pending: 0.0, q1: 0, q2: 0, q3: 0, q4: 180.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '胡晓飞', field: '规划行业' },
-    { name: '笋岗上盖数字孪生协同管控平台', type: '', contract: 800.0, year: 2026, phase: '前期跟进', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '', field: '' },
-    { name: '深圳市山海连城智慧导览系统建设（一期）', type: '集成开发', contract: 580.0, year: 2026, phase: '待收尾款', pending: 8.25, q1: 0, q2: 0, q3: 0, q4: 8.25, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '市规资局空信处', contact: '邓雅欣', position: '发展研究中心借调人员', phone: '13537850961', leader: '韩江雪', field: '城市/社区运营' },
-    { name: '华富社区鸿蒙智慧党群建设项目', type: '集成开发', contract: 500.0, year: 2026, phase: '项目建议书编制', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '石名扬', field: '城市/社区运营' },
-    { name: '南山圳智慧规划设计场景建设项目(云上二期，可研待定)', type: '集成开发', contract: 300.0, year: 2026, phase: '可研编制', pending: 204.0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市原世界科技有限公司', contact: '贾玉娟', position: '总经理', phone: '13544131329', leader: '韩江雪', field: 'AI智能化' },
-    { name: '林芝数字经开空间智慧管理系统项目', type: '集成开发', contract: 280.0, year: 2026, phase: '前期跟进', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '', field: '工程协同' },
-    { name: '龙川CIM', type: '服务', contract: 200.0, year: 2026, phase: '已立项未招采', pending: 200.0, q1: 0, q2: 0, q3: 40.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '袁誉菲', field: '工程协同' },
-    { name: '前海智慧规划平台', type: '服务', contract: 180.0, year: 2026, phase: '进行中', pending: 130.0, q1: 0, q2: 0, q3: 66.4, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '前海管理局', contact: '曹悦', position: '规划处四级行政主任', phone: '19925201751', leader: '汪凯', field: 'AI智能化' },
-    { name: '南山圳智慧精细三维规划专题场景开发服务', type: '服务', contract: 180.0, year: 2026, phase: '进行中', pending: 180.0, q1: 0, q2: 90.0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市原世界科技有限公司', contact: '贾玉娟', position: '总经理', phone: '13544131329', leader: '石名扬', field: '规划行业' },
-    { name: '蠡湖未来城智慧城市规划与CIM平台', type: '集成开发', contract: 179.3, year: 2026, phase: '待收尾款', pending: 53.79, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '蠡湖未来城建设指挥部', contact: '刘恪', position: '信息化负责人', phone: '微信号：liukeufo', leader: '袁誉菲', field: '工程协同' },
-    { name: '住建局BIM项目', type: '研究', contract: 150.0, year: 2026, phase: '已立项未招采', pending: 150.0, q1: 0, q2: 10.0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深城交', contact: '陈炜', position: '项目经理', phone: '18859105786', leader: '胡晓飞', field: '工程协同' },
-    { name: '生态环境监测中心站2026年定点项目', type: '研究', contract: 130.0, year: 2026, phase: '已立项未招采', pending: 70.0, q1: 0, q2: 0, q3: 35.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市环境监测中心站', contact: '孙天乐', position: '大气室主任', phone: '13632780829', leader: '袁富林', field: '智慧环境' },
-    { name: '成都洪水淹没三维场景构建', type: '服务', contract: 119.0, year: 2026, phase: '进行中', pending: 57.0, q1: 0, q2: 28.5, q3: 0, q4: 17.1, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '丰图科技', contact: '陈子峰', position: '招采负责人', phone: '19537538844', leader: '欧阳玲', field: '工程协同' },
-    { name: '城市更新全流程管理系统', type: '服务', contract: 116.0, year: 2026, phase: '进行中', pending: 56.0, q1: 0, q2: 33.6, q3: 0, q4: 22.4, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市壹平台信息技术有限公司', contact: '刘涛', position: '商务总监', phone: '13691638030', leader: '韩江雪', field: '工程协同' },
-    { name: '通讯井盖AI智慧运维项目', type: '集成开发', contract: 95.0, year: 2026, phase: '', pending: 0.0, q1: 0.0, q2: 0.0, q3: 0.0, q4: 0.0, aq1: 0.0, aq2: 0.0, aq3: 0.0, aq4: 0.0, client: '', contact: '', position: '', phone: '', leader: '', field: '' },
-    { name: 'CSPON-深圳市“数据要素X城市治理”创新试点建设（华强北片区）+ 深圳市片区控制性详细规划设计导则数字试点', type: '研究', contract: 80.0, year: 2026, phase: '已立项未招采', pending: 80.0, q1: 0, q2: 30.0, q3: 0, q4: 30.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '易图资讯股份有限公司', contact: '张甲伟', position: '项目经理', phone: '13766837953', leader: '韩江雪', field: '咨询工作' },
-    { name: '生态产品价值统一核算信息平台建设采购项目', type: '研究', contract: 79.3, year: 2026, phase: '待收尾款', pending: 23.79, q1: 0, q2: 23.79, q3: 0, q4: 0, aq1: 0, aq2: 23.79, aq3: 0, aq4: 0, client: '长三角生态绿色一体化发展示范区执行委员会', contact: '汪海峰', position: '规建部对接人', phone: '微信号：Omni_G', leader: '李承涛', field: '智慧环境' },
-    { name: '内控体系管理助手及智能办公助手技术服务', type: '集成开发', contract: 78.6, year: 2026, phase: '待收尾款', pending: 39.3, q1: 0, q2: 39.3, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市环境监测中心站', contact: '潘晓峰', position: '综合室主任', phone: '13632707950', leader: '刘文娟', field: 'AI智能化' },
-    { name: '碳污协同溯源及空气质量预报支持服务', type: '服务', contract: 70.0, year: 2026, phase: '已立项未招采', pending: 70.0, q1: 0, q2: 0, q3: 35.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '袁富林', field: '智慧环境' },
-    { name: '深国际交流中心智慧海绵', type: '研究', contract: 65.0, year: 2026, phase: '待收尾款', pending: 54.0, q1: 0, q2: 0, q3: 27.0, q4: 27.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '华海科技', contact: '', position: '', phone: '', leader: '刘文娟', field: '智慧市政' },
-    { name: '宝安区既有水务设施建模', type: '服务', contract: 60.0, year: 2026, phase: '已立项未招采', pending: 60.0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '中电建华东院', contact: '彭建华', position: 'BIM中心主任', phone: '13632651411', leader: '欧阳玲', field: '智慧市政' },
-    { name: '规划和自然资源公共数据产品建设', type: '研究', contract: 53.5, year: 2026, phase: '进行中', pending: 53.5, q1: 0, q2: 16.05, q3: 0, q4: 16.05, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '市规资局空信处', contact: '仝雪琳', position: '科长', phone: '17803877900', leader: '胡晓飞', field: '咨询工作' },
-    { name: '监测视频算法训练服务', type: '服务', contract: 43.6, year: 2026, phase: '已结束', pending: 21.8, q1: 0, q2: 21.8, q3: 0, q4: 0, aq1: 0, aq2: 21.8, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '刘文娟', field: '智慧环境' },
-    { name: '深圳市再生水管线普查数据入库与水质标准研究', type: '研究', contract: 40.0, year: 2026, phase: '待收尾款', pending: 8.0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '胡晓飞', field: '咨询工作' },
-    { name: '深超总市政道路BIM技术服务', type: '研究', contract: 40.0, year: 2026, phase: '进行中', pending: 40.0, q1: 0, q2: 0, q3: 0, q4: 40.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市工务署', contact: '', position: '', phone: '', leader: '欧阳玲', field: '工程协同' },
-    { name: 'CSPON-业务系统需求设计', type: '服务', contract: 38.0, year: 2026, phase: '已立项未招采', pending: 38.0, q1: 0, q2: 0, q3: 38.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '易图资讯股份有限公司', contact: '张甲伟', position: '项目经理', phone: '13766837953', leader: '韩江雪', field: '咨询工作' },
-    { name: '盐城高新区详细规划数据库项目', type: '研究', contract: 17.5, year: 2026, phase: '待收尾款', pending: 12.25, q1: 0, q2: 0, q3: 0, q4: 12.25, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '刘文娟', field: '咨询工作' },
-    { name: '山海骑遇小程序开发/光明数据采集', type: '集成开发', contract: 16.0, year: 2026, phase: '进行中', pending: 9.8, q1: 0, q2: 0, q3: 0, q4: 9.8, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '刘文娟', field: '城市/社区运营' },
-    { name: '智慧应急展教基地顶层设计', type: '研究', contract: 13.0, year: 2026, phase: '待收尾款', pending: 13.0, q1: 0, q2: 0, q3: 6.5, q4: 6.5, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市应急管理局', contact: '郭志杰', position: '科信处副处长', phone: '13510406580', leader: '袁誉菲', field: '咨询工作' },
-    { name: '旅游总规划服务', type: '研究', contract: 12.0, year: 2026, phase: '待收尾款', pending: 12.0, q1: 0, q2: 0, q3: 0, q4: 12.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '夏丽', field: '咨询工作' },
-    { name: '龙岗大运北片区规划会商平台', type: '服务', contract: 9.24, year: 2026, phase: '进行中', pending: 9.24, q1: 0, q2: 7.7, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市润投咨询有限公司（更新中心与我们签订产值切分）', contact: '杨波', position: '部门经理', phone: '13760186074', leader: '罗逸飞', field: '规划行业' },
-    { name: '湛江市城市信息模型（CIM）基础平台（一期）数据摸查项目', type: '研究', contract: 0, year: 2026, phase: '撤销立项', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '', field: '规划行业' },
-    { name: '规划和自然资源垂类AI模型训练和场景验证', type: '研究', contract: 0.0, year: 2026, phase: '撤销立项', pending: 0.0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '', field: 'AI智能化' }
-    ];;
+        // 获取团队所有成员列表
+        function getAllTeamMembers() {
+            const members = [];
+            for (const [group, list] of Object.entries(TEAM_DATA)) {
+                list.forEach(m => members.push({...m, group}));
+            }
+            return members;
+        }
 
-        // 客户数据
-                                const CLIENTS = [
-  { name: '南山区政务服务和数据管理局、南山区发展和改革局', contact: '黄吉娜', phone: '15521236253', position: '科长', project: '西丽高铁新城全过程一体化协同BIM/CIM应用' },
-  { name: '市规资局空信处', contact: '邓雅欣', phone: '13537850961', position: '发展研究中心借调人员', project: '深圳市山海连城智慧导览系统建设（一期）' },
-  { name: '深圳市原世界科技有限公司', contact: '贾玉娟', phone: '13544131329', position: '总经理', project: '南山圳智慧规划设计场景建设项目(云上二期，可研待定)' },
-  { name: '前海管理局', contact: '曹悦', phone: '19925201751', position: '规划处四级行政主任', project: '前海智慧规划平台' },
-  { name: '蠡湖未来城建设指挥部', contact: '刘恪', phone: '微信号：liukeufo', position: '信息化负责人', project: '蠡湖未来城智慧城市规划与CIM平台' },
-  { name: '深城交', contact: '陈炜', phone: '18859105786', position: '项目经理', project: '住建局BIM项目' },
-  { name: '深圳市环境监测中心站', contact: '孙天乐', phone: '13632780829', position: '大气室主任', project: '生态环境监测中心站2026年定点项目' },
-  { name: '丰图科技', contact: '陈子峰', phone: '19537538844', position: '招采负责人', project: '成都洪水淹没三维场景构建' },
-  { name: '深圳市壹平台信息技术有限公司', contact: '刘涛', phone: '13691638030', position: '商务总监', project: '城市更新全流程管理系统' },
-  { name: '易图资讯股份有限公司', contact: '张甲伟', phone: '13766837953', position: '项目经理', project: 'CSPON-深圳市“数据要素X城市治理”创新试点建设（华强北片区）+ 深圳市片区控制性详细规划设计导则数字试点' },
-  { name: '长三角生态绿色一体化发展示范区执行委员会', contact: '汪海峰', phone: '微信号：Omni_G', position: '规建部对接人', project: '生态产品价值统一核算信息平台建设采购项目' },
-  { name: '华海科技', contact: '', phone: '', position: '', project: '深国际交流中心智慧海绵' },
-  { name: '中电建华东院', contact: '彭建华', phone: '13632651411', position: 'BIM中心主任', project: '宝安区既有水务设施建模' },
-  { name: '深圳市工务署', contact: '', phone: '', position: '', project: '深超总市政道路BIM技术服务' },
-  { name: '深圳市应急管理局', contact: '郭志杰', phone: '13510406580', position: '科信处副处长', project: '智慧应急展教基地顶层设计' },
-  { name: '深圳市润投咨询有限公司（更新中心与我们签订产值切分）', contact: '杨波', phone: '13760186074', position: '部门经理', project: '龙岗大运北片区规划会商平台' }
-];
-
-        // 计划收款数据 (按季度)
-                                const PLAN_DATA = {
-    q1: { research: 0, develop: 0.0, service: 0 },
-    q2: { research: 79.84, develop: 39.3, service: 181.6 },
-    q3: { research: 68.5, develop: 0.0, service: 179.4 },
-    q4: { research: 143.8, develop: 698.05, service: 39.5 },
+        // 2026年季度收款计划
+        const PLAN_DATA = {
+            q1: { research: 10.0, develop: 80.0, service: 30.0 },
+            q2: { research: 40.0, develop: 150.0, service: 200.0 },
+            q3: { research: 35.0, develop: 120.0, service: 80.0 },
+            q4: { research: 30.0, develop: 80.0, service: 150.0 }
         };
 
-        // 实际收款数据 (按季度, Q1为空表示未录入)
-                                const ACTUAL_DATA = {
-    q1: { research: 0, develop: 0.0, service: 0 },
-    q2: { research: 23.79, develop: 0.0, service: 21.8 },
-    q3: { research: 0, develop: 0.0, service: 0 },
-    q4: { research: 0, develop: 0.0, service: 0 },
+        // 2026年实际收款（目前Q1有收款记录）
+        const ACTUAL_DATA = {
+            q1: { research: 0, develop: 23.79, service: 0 },
+            q2: { research: 0, develop: 0, service: 0 },
+            q3: { research: 0, develop: 0, service: 0 },
+            q4: { research: 0, develop: 0, service: 0 }
         };
+
+        // 项目数据（新增members字段用于人员分配）
+        let PROJECTS = [
+            { name: '西丽高铁新城全过程一体化协同BIM/CIM应用', type: '集成开发', contract: 1600.0, year: 2026, phase: '可研编制', pending: 1600.0, q1: 0, q2: 0, q3: 0, q4: 500.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '南山区政务服务和数据管理局、南山区发展和改革局', contact: '黄吉娜', position: '科长', phone: '15521236253', leader: '韩江雪', field: '工程协同', members: [] },
+            { name: '南山一张图实验室', type: '集成开发', contract: 900.0, year: 2026, phase: '初设编制', pending: 0.0, q1: 0, q2: 0, q3: 0, q4: 180.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '胡晓飞', field: '规划行业', members: [] },
+            { name: '笋岗上盖数字孪生协同管控平台', type: '', contract: 800.0, year: 2026, phase: '前期跟进', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '', field: '', members: [] },
+            { name: '深圳市山海连城智慧导览系统建设（一期）', type: '集成开发', contract: 580.0, year: 2026, phase: '待收尾款', pending: 8.25, q1: 0, q2: 0, q3: 0, q4: 8.25, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '市规资局空信处', contact: '邓雅欣', position: '发展研究中心借调人员', phone: '13537850961', leader: '韩江雪', field: '城市/社区运营', members: [] },
+            { name: '华富社区鸿蒙智慧党群建设项目', type: '集成开发', contract: 500.0, year: 2026, phase: '项目建议书编制', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '石名扬', field: '城市/社区运营', members: [] },
+            { name: '南山圳智慧规划设计场景建设项目(云上二期，可研待定)', type: '集成开发', contract: 300.0, year: 2026, phase: '可研编制', pending: 204.0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市原世界科技有限公司', contact: '贾玉娟', position: '总经理', phone: '13544131329', leader: '韩江雪', field: 'AI智能化', members: [] },
+            { name: '林芝数字经开空间智慧管理系统项目', type: '集成开发', contract: 280.0, year: 2026, phase: '前期跟进', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '', field: '工程协同', members: [] },
+            { name: '龙川CIM', type: '服务', contract: 200.0, year: 2026, phase: '已立项未招采', pending: 200.0, q1: 0, q2: 0, q3: 40.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '袁誉菲', field: '工程协同', members: [] },
+            { name: '前海智慧规划平台', type: '服务', contract: 180.0, year: 2026, phase: '进行中', pending: 130.0, q1: 0, q2: 0, q3: 66.4, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '前海管理局', contact: '曹悦', position: '规划处四级行政主任', phone: '19925201751', leader: '汪凯', field: 'AI智能化', members: [] },
+            { name: '南山圳智慧精细三维规划专题场景开发服务', type: '服务', contract: 180.0, year: 2026, phase: '进行中', pending: 180.0, q1: 0, q2: 90.0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市原世界科技有限公司', contact: '贾玉娟', position: '总经理', phone: '13544131329', leader: '石名扬', field: '规划行业', members: [] },
+            { name: '蠡湖未来城智慧城市规划与CIM平台', type: '集成开发', contract: 179.3, year: 2024, phase: '待收尾款', pending: 53.79, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '蠡湖未来城建设指挥部', contact: '刘恪', position: '信息化负责人', phone: '微信号：liukeufo', leader: '袁誉菲', field: '工程协同', members: [] },
+            { name: '住建局BIM项目', type: '研究', contract: 150.0, year: 2026, phase: '已立项未招采', pending: 150.0, q1: 0, q2: 10.0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深城交', contact: '陈炜', position: '项目经理', phone: '18859105786', leader: '胡晓飞', field: '工程协同', members: [] },
+            { name: '生态环境监测中心站2026年定点项目', type: '研究', contract: 130.0, year: 2026, phase: '已立项未招采', pending: 70.0, q1: 0, q2: 0, q3: 35.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市环境监测中心站', contact: '孙天乐', position: '大气室主任', phone: '13632780829', leader: '袁富林', field: '智慧环境', members: [] },
+            { name: '成都洪水淹没三维场景构建', type: '服务', contract: 119.0, year: 2026, phase: '进行中', pending: 57.0, q1: 0, q2: 28.5, q3: 0, q4: 17.1, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '丰图科技', contact: '陈子峰', position: '招采负责人', phone: '19537538844', leader: '欧阳玲', field: '工程协同', members: [] },
+            { name: '城市更新全流程管理系统', type: '服务', contract: 116.0, year: 2026, phase: '进行中', pending: 56.0, q1: 0, q2: 33.6, q3: 0, q4: 22.4, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市壹平台信息技术有限公司', contact: '刘涛', position: '商务总监', phone: '13691638030', leader: '韩江雪', field: '工程协同', members: [] },
+            { name: '通讯井盖AI智慧运维项目', type: '集成开发', contract: 95.0, year: 2026, phase: '', pending: 0.0, q1: 0.0, q2: 0.0, q3: 0.0, q4: 0.0, aq1: 0.0, aq2: 0.0, aq3: 0.0, aq4: 0.0, client: '', contact: '', position: '', phone: '', leader: '', field: '', members: [] },
+            { name: 'CSPON-深圳市"数据要素X城市治理"创新试点建设（华强北片区）+ 深圳市片区控制性详细规划设计导则数字试点', type: '研究', contract: 80.0, year: 2026, phase: '已立项未招采', pending: 80.0, q1: 0, q2: 30.0, q3: 0, q4: 30.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '易图资讯股份有限公司', contact: '张甲伟', position: '项目经理', phone: '13766837953', leader: '韩江雪', field: '咨询工作', members: [] },
+            { name: '生态产品价值统一核算信息平台建设采购项目', type: '研究', contract: 79.3, year: 2024, phase: '待收尾款', pending: 23.79, q1: 0, q2: 23.79, q3: 0, q4: 0, aq1: 0, aq2: 23.79, aq3: 0, aq4: 0, client: '长三角生态绿色一体化发展示范区执行委员会', contact: '汪海峰', position: '规建部对接人', phone: '微信号：Omni_G', leader: '李承涛', field: '智慧环境', members: [] },
+            { name: '内控体系管理助手及智能办公助手技术服务', type: '集成开发', contract: 78.6, year: 2025, phase: '待收尾款', pending: 39.3, q1: 0, q2: 39.3, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市环境监测中心站', contact: '潘晓峰', position: '综合室主任', phone: '13632707950', leader: '刘文娟', field: 'AI智能化', members: [] },
+            { name: '碳污协同溯源及空气质量预报支持服务', type: '研究', contract: 75.0, year: 2026, phase: '已立项未招采', pending: 0, q1: 0, q2: 0, q3: 30.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市环境监测中心站', contact: '孙天乐', position: '大气室主任', phone: '13632780829', leader: '袁富林', field: '智慧环境', members: [] },
+            { name: '湛江市城市信息模型（CIM）基础平台（一期）数据摸查项目', type: '服务', contract: 72.0, year: 2025, phase: '待收尾款', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '湛江市住房和城乡建设局', contact: '郑海川', position: '科技信息科副科长', phone: '13828286508', leader: '刘文娟', field: '工程协同', members: [] },
+            { name: '深圳市再生水管线普查数据入库与水质标准研究', type: '研究', contract: 59.6, year: 2024, phase: '已撤销立项', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市水务局', contact: '叶俊', position: '一级主任科员', phone: '13590312638', leader: '胡晓飞', field: '咨询工作', members: [] },
+            { name: '规划和自然资源公共数据产品建设', type: '集成开发', contract: 58.0, year: 2026, phase: '已立项未招采', pending: 0, q1: 0, q2: 0, q3: 0, q4: 58.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市规划和自然资源数据管理中心', contact: '李庆庆', position: '数据管理部部长', phone: '13590241946', leader: '胡晓飞', field: '咨询工作', members: [] },
+            { name: '宝安区既有水务设施建模', type: '服务', contract: 55.0, year: 2026, phase: '已立项未招采', pending: 55.0, q1: 0, q2: 0, q3: 27.5, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '宝安区水务局', contact: '陈亮', position: '工程师', phone: '13662627785', leader: '欧阳玲', field: '工程协同', members: [] },
+            { name: '深超总市政道路BIM技术服务', type: '服务', contract: 50.0, year: 2024, phase: '待收尾款', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市前海建设投资控股集团有限公司', contact: '刘舒', position: '成本管理部', phone: '13590179387', leader: '欧阳玲', field: '工程协同', members: [] },
+            { name: '规划和自然资源垂类AI模型训练和场景验证', type: '研究', contract: 50.0, year: 2026, phase: '已立项未招采', pending: 50.0, q1: 0, q2: 0, q3: 0, q4: 50.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市规划和自然资源数据管理中心', contact: '李庆庆', position: '数据管理部部长', phone: '13590241946', leader: '胡晓飞', field: 'AI智能化', members: [] },
+            { name: '智慧应急展教基地顶层设计', type: '服务', contract: 48.0, year: 2024, phase: '待收尾款', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市应急管理局', contact: '陈科文', position: '三级调研员', phone: '13823566390', leader: '袁誉菲', field: '咨询工作', members: [] },
+            { name: '龙岗大运北片区规划会商平台', type: '集成开发', contract: 45.0, year: 2026, phase: '进行中', pending: 45.0, q1: 0, q2: 0, q3: 0, q4: 45.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '龙岗区政务服务数据管理局', contact: '方文杰', position: '数据管理部部长', phone: '13631607280', leader: '罗逸飞', field: '城市/社区运营', members: [] },
+            { name: '盐城高新区详细规划数据库项目', type: '服务', contract: 38.0, year: 2025, phase: '待收尾款', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '盐城高新区规划建设局', contact: '陈海华', position: '科室负责人', phone: '13851088820', leader: '刘文娟', field: '咨询工作', members: [] },
+            { name: '旅游总规划服务', type: '服务', contract: 36.0, year: 2025, phase: '待收尾款', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市文化广电旅游体育局', contact: '张文波', position: '一级主任科员', phone: '13808888888', leader: '夏丽', field: '咨询工作', members: [] },
+            { name: '山海骑遇小程序开发/光明数据采集', type: '集成开发', contract: 30.0, year: 2025, phase: '待收尾款', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市规划和自然资源数据管理中心', contact: '李庆庆', position: '数据管理部部长', phone: '13590241946', leader: '刘文娟', field: '城市/社区运营', members: [] }
+        ];
+
+        // 甲方客户数据
+        const CLIENTS = [
+            { client: '南山区政务服务和数据管理局、南山区发展和改革局', type: '政府部门', contact: '黄吉娜', position: '科长', phone: '15521236253' },
+            { client: '深圳市原世界科技有限公司', type: '企业', contact: '贾玉娟', position: '总经理', phone: '13544131329' },
+            { client: '前海管理局', type: '政府部门', contact: '曹悦', position: '规划处四级行政主任', phone: '19925201751' },
+            { client: '蠡湖未来城建设指挥部', type: '政府部门', contact: '刘恪', position: '信息化负责人', phone: '微信号：liukeufo' },
+            { client: '深城交', type: '国央企', contact: '陈炜', position: '项目经理', phone: '18859105786' },
+            { client: '深圳市环境监测中心站', type: '政府部门', contact: '孙天乐', position: '大气室主任', phone: '13632780829' },
+            { client: '丰图科技', type: '企业', contact: '陈子峰', position: '招采负责人', phone: '19537538844' },
+            { client: '深圳市壹平台信息技术有限公司', type: '企业', contact: '刘涛', position: '商务总监', phone: '13691638030' },
+            { client: '易图资讯股份有限公司', type: '企业', contact: '张甲伟', position: '项目经理', phone: '13766837953' },
+            { client: '长三角生态绿色一体化发展示范区执行委员会', type: '政府部门', contact: '汪海峰', position: '规建部对接人', phone: '微信号：Omni_G' },
+            { client: '湛江市住房和城乡建设局', type: '政府部门', contact: '郑海川', position: '科技信息科副科长', phone: '13828286508' },
+            { client: '深圳市水务局', type: '政府部门', contact: '叶俊', position: '一级主任科员', phone: '13590312638' },
+            { client: '深圳市规划和自然资源数据管理中心', type: '政府部门', contact: '李庆庆', position: '数据管理部部长', phone: '13590241946' },
+            { client: '宝安区水务局', type: '政府部门', contact: '陈亮', position: '工程师', phone: '13662627785' },
+            { client: '深圳市前海建设投资控股集团有限公司', type: '国央企', contact: '刘舒', position: '成本管理部', phone: '13590179387' },
+            { client: '深圳市应急管理局', type: '政府部门', contact: '陈科文', position: '三级调研员', phone: '13823566390' },
+            { client: '龙岗区政务服务数据管理局', type: '政府部门', contact: '方文杰', position: '数据管理部部长', phone: '13631607280' },
+            { client: '盐城高新区规划建设局', type: '政府部门', contact: '陈海华', position: '科室负责人', phone: '13851088820' },
+            { client: '深圳市文化广电旅游体育局', type: '政府部门', contact: '张文波', position: '一级主任科员', phone: '13808888888' },
+            { client: '市规资局空信处', type: '政府部门', contact: '邓雅欣', position: '发展研究中心借调人员', phone: '13537850961' },
+            { client: '深信服科技股份有限公司', type: '头部科技公司', contact: '周文婷', position: '项目经理', phone: '13632567890' },
+            { client: '华为技术有限公司', type: '头部科技公司', contact: '李明', position: '技术总监', phone: '13800138000' },
+            { client: '腾讯云计算（北京）有限责任公司', type: '头部科技公司', contact: '王芳', position: '产品经理', phone: '13900001111' },
+            { client: '中国城市规划设计研究院', type: '规划院同行', contact: '张强', position: '项目总监', phone: '18600001111' },
+            { client: '深圳市城市规划设计研究院', type: '规划院同行', contact: '李娜', position: '副总规划师', phone: '13700002222' }
+        ];
 
         // ==================== 状态变量 ====================
         let currentTypeFilter = '全部';
@@ -1669,22 +2001,89 @@ const FILE_INDEX = {
         let currentFieldFilter = '全部';
         let currentClientFilter = '全部';
         let expandedRows = new Set();
+        let currentEditingProject = null;
+        let selectedMembers = [];
 
-        // ==================== 工具函数 ====================
+        // ==================== localStorage持久化 ====================
+        const STORAGE_KEY = 'biz_dashboard_members';
 
-        // 获取年份
-        function getYear(name) {
-            return YEAR_MAP[name] || null;
+        // 加载保存的人员分配数据
+        function loadMemberAssignments() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const savedData = JSON.parse(saved);
+                    PROJECTS = PROJECTS.map(p => {
+                        if (savedData[p.name]) {
+                            return { ...p, members: savedData[p.name] };
+                        }
+                        return p;
+                    });
+                }
+            } catch (e) {
+                console.warn('加载人员分配数据失败:', e);
+            }
+        }
+
+        // 保存人员分配数据
+        function saveMemberAssignments() {
+            try {
+                const saveData = {};
+                PROJECTS.forEach(p => {
+                    if (p.members && p.members.length > 0) {
+                        saveData[p.name] = p.members;
+                    }
+                });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
+            } catch (e) {
+                console.warn('保存人员分配数据失败:', e);
+            }
+        }
+
+        // 获取项目文件
+        function getProjectFiles(projectName) {
+            const docPath = getDocPath(projectName);
+            if (!docPath) return [];
+            // 从路径中提取文件夹名称
+            const parts = docPath.split('/').filter(Boolean);
+            const dirName = parts[parts.length - 1];
+            // 尝试匹配FILE_INDEX中的文件夹名
+            for (const [key, files] of Object.entries(FILE_INDEX)) {
+                if (projectName.includes(key)) {
+                    return files;
+                }
+            }
+            return [];
         }
 
         // 获取负责人
         function getPerson(name) {
-            return PERSON_MAP[name] || '-';
+            return PERSON_MAP[name] || getLeader(name) || '-';
+        }
+
+        function getLeader(name) {
+            const p = PROJECTS.find(p => p.name === name);
+            return p ? p.leader : '';
         }
 
         // 获取专业方向
         function getField(name) {
-            return FIELD_MAP[name] || '-';
+            return FIELD_MAP[name] || getFieldFromProject(name) || '-';
+        }
+
+        function getFieldFromProject(name) {
+            const p = PROJECTS.find(p => p.name === name);
+            return p ? p.field : '';
+        }
+
+        // 获取年份
+        function getYear(name) {
+            return YEAR_MAP[name] || getYearFromProject(name) || '';
+        }
+
+        function getYearFromProject(name) {
+            const p = PROJECTS.find(p => p.name === name);
+            return p ? p.year : '';
         }
 
         // 获取文档路径
@@ -1698,7 +2097,7 @@ const FILE_INDEX = {
             if (password === 'SZZN2026') {
                 sessionStorage.setItem('dashboard_auth', 'true');
                 document.getElementById('passwordOverlay').style.display = 'none';
-                document.getElementById('mainContent').classList.add('show');
+                document.getElementById('dashboardTab').classList.add('show');
                 initDashboard();
             } else {
                 document.getElementById('passwordError').style.display = 'block';
@@ -1714,21 +2113,42 @@ const FILE_INDEX = {
         // 检查是否已验证
         if (sessionStorage.getItem('dashboard_auth') === 'true') {
             document.getElementById('passwordOverlay').style.display = 'none';
-            document.getElementById('mainContent').classList.add('show');
+            document.getElementById('dashboardTab').classList.add('show');
             setTimeout(initDashboard, 100);
         }
 
-        // Tab切换
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        // 顶部Tab切换
+        function switchTopTab(tab) {
+            // 更新Tab按钮状态
+            document.querySelectorAll('.top-tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
 
+            // 隐藏所有内容区
+            document.querySelectorAll('.main-content').forEach(content => {
+                content.classList.remove('show');
+            });
+
+            // 显示对应内容区
+            const tabMap = {
+                'dashboard': 'dashboardTab',
+                'projects': 'projectsTab',
+                'members': 'membersTab',
+                'clients': 'clientsTab'
+            };
+
+            const targetId = tabMap[tab];
+            if (targetId) {
+                document.getElementById(targetId).classList.add('show');
+            }
+
+            // 渲染对应Tab内容
             if (tab === 'projects') {
-                document.querySelectorAll('.tab-btn')[0].classList.add('active');
-                document.getElementById('projectsTab').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab-btn')[1].classList.add('active');
-                document.getElementById('clientsTab').classList.add('active');
+                renderProjectTable();
+            } else if (tab === 'members') {
+                renderDeptMembers();
+            } else if (tab === 'clients') {
+                renderClientTable();
             }
         }
 
@@ -1751,11 +2171,157 @@ const FILE_INDEX = {
             if (e.target === this) closeModal();
         });
 
+        // 人员分配相关函数
+        function openMemberSelect(projectName) {
+            currentEditingProject = projectName;
+            const project = PROJECTS.find(p => p.name === projectName);
+            if (!project) return;
+
+            selectedMembers = [...(project.members || [])];
+            
+            const body = document.getElementById('memberSelectBody');
+            let html = '';
+            
+            for (const [groupName, members] of Object.entries(TEAM_DATA)) {
+                html += `<div class="member-select-group">`;
+                html += `<div class="member-select-group-title">${groupName}</div>`;
+                html += `<div class="member-select-options">`;
+                
+                members.forEach(m => {
+                    const isSelected = selectedMembers.includes(m.name);
+                    html += `<div class="member-option ${isSelected ? 'selected' : ''}" 
+                             data-name="${m.name}" 
+                             onclick="toggleMemberSelection('${m.name}')">${m.name}</div>`;
+                });
+                
+                html += `</div></div>`;
+            }
+            
+            body.innerHTML = html;
+            document.getElementById('memberSelectModal').classList.add('show');
+        }
+
+        function toggleMemberSelection(name) {
+            const index = selectedMembers.indexOf(name);
+            if (index === -1) {
+                selectedMembers.push(name);
+            } else {
+                selectedMembers.splice(index, 1);
+            }
+            
+            // 更新UI
+            document.querySelectorAll('.member-option').forEach(opt => {
+                if (opt.dataset.name === name) {
+                    opt.classList.toggle('selected', selectedMembers.includes(name));
+                }
+            });
+        }
+
+        function closeMemberSelect() {
+            document.getElementById('memberSelectModal').classList.remove('show');
+            currentEditingProject = null;
+            selectedMembers = [];
+        }
+
+        function saveMemberSelect() {
+            if (currentEditingProject) {
+                const project = PROJECTS.find(p => p.name === currentEditingProject);
+                if (project) {
+                    project.members = [...selectedMembers];
+                    saveMemberAssignments();
+                    renderProjectTable();
+                    renderDeptMembers();
+                }
+            }
+            closeMemberSelect();
+        }
+
+        // 渲染部门人员Tab
+        function renderDeptMembers() {
+            const container = document.getElementById('deptMembersList');
+            const allMembers = getAllTeamMembers();
+            
+            // 统计每个人员参与的项目
+            const memberProjectCount = {};
+            const memberProjects = {};
+            
+            allMembers.forEach(m => {
+                memberProjectCount[m.name] = 0;
+                memberProjects[m.name] = [];
+            });
+            
+            PROJECTS.forEach(p => {
+                if (p.phase === '撤销立项') return;
+                if (p.members && p.members.length > 0) {
+                    p.members.forEach(memberName => {
+                        if (memberProjectCount.hasOwnProperty(memberName)) {
+                            memberProjectCount[memberName]++;
+                            memberProjects[memberName].push(p.name);
+                        }
+                    });
+                }
+            });
+            
+            let html = '';
+            
+            // 按角色分组显示
+            for (const [groupName, members] of Object.entries(TEAM_DATA)) {
+                members.forEach(m => {
+                    const projectCount = memberProjectCount[m.name] || 0;
+                    const projects = memberProjects[m.name] || [];
+                    
+                    html += `
+                        <div class="dept-member-card">
+                            <div class="dept-member-header">
+                                <span class="dept-member-name">${m.name}</span>
+                                <span class="dept-member-role">${m.role}</span>
+                            </div>
+                            <div class="dept-member-stats">
+                                <span class="dept-member-stat">参与项目：<strong>${projectCount}</strong> 个</span>
+                            </div>
+                            ${projects.length > 0 ? `
+                                <div class="dept-member-projects">
+                                    <h5>参与的项目：</h5>
+                                    ${projects.map(pn => `<span class="dept-project-tag">${pn}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+            }
+            
+            container.innerHTML = html || '<div class="empty-state">暂无人员数据</div>';
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + 'B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+            return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+        }
+
+        // 获取文件图标
+        function getFileIcon(ext) {
+            const icons = {
+                '.pdf': '📄',
+                '.docx': '📝',
+                '.doc': '📝',
+                '.xlsx': '📊',
+                '.xls': '📊',
+                '.pptx': '📑',
+                '.md': '📋',
+                '.txt': '📃'
+            };
+            return icons[ext] || '📁';
+        }
+
         // ==================== 初始化 ====================
 
         function initDashboard() {
+            // 加载保存的人员分配
+            loadMemberAssignments();
+            
             // 更新时间
-            const now = new Date();
             document.getElementById('updateTime').textContent = '数据更新时间：2026-06-03';
 
             // 计算统计数据
@@ -1783,6 +2349,7 @@ const FILE_INDEX = {
             // 渲染表格
             renderProjectTable();
             renderClientTable();
+            renderDeptMembers();
         }
 
         function calculateStats() {
@@ -1798,13 +2365,9 @@ const FILE_INDEX = {
                 const year = p.year || getYear(p.name);
                 const isCancelled = p.phase === '撤销立项';
 
-                // 不统计撤销立项和合同额为0的项目
                 if (!isCancelled && p.contract > 0) {
                     total_contract += p.contract;
                     total_pending += p.pending;
-
-                    // 2026计划收款 = Q1~Q4计划收款总和
-                    // 由PLAN_DATA统一计算，此处不再逐项目累加
 
                     if (year) {
                         year_stats[year] += p.contract;
@@ -1822,13 +2385,10 @@ const FILE_INDEX = {
                 }
             });
 
-            // 2026计划收款 = PLAN_DATA Q1~Q4总和
             total_2026_plan = Object.values(PLAN_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
 
-            // 2026实际收款 = ACTUAL_DATA Q1~Q4总和
             let total_2026_actual = Object.values(ACTUAL_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
 
-            // 专业方向统计
             const field_stats = {};
             PROJECTS.forEach(p => {
                 if (p.phase === '撤销立项') return;
@@ -1875,12 +2435,10 @@ const FILE_INDEX = {
         }
 
         function updateProjectSummary(stats) {
-            // 总项目数（非撤销立项）
             const totalProjects = PROJECTS.filter(p => p.phase !== '撤销立项').length;
             document.getElementById('totalProjectCount').textContent = totalProjects;
             document.getElementById('activeProjectCount').textContent = stats.active_projects;
 
-            // 专业方向分布
             const fieldOrder = ['咨询工作', '智慧环境', '工程协同', '智慧市政', 'AI智能化', '城市/社区运营', '规划行业'];
             fieldOrder.forEach((field, i) => {
                 const el = document.getElementById('fieldCount' + i);
@@ -1894,7 +2452,6 @@ const FILE_INDEX = {
             const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
             const types = ['研究', '集成开发', '服务'];
 
-            // 计算每个季度的合计
             const totals = quarters.map((q, i) => {
                 const key = ['q1', 'q2', 'q3', 'q4'][i];
                 return (PLAN_DATA[key].research + PLAN_DATA[key].develop + PLAN_DATA[key].service).toFixed(2);
@@ -2036,7 +2593,6 @@ const FILE_INDEX = {
             const chart = echarts.init(document.getElementById('planActualChart'));
             const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
 
-            // 计算每个季度的合计
             const planTotals = quarters.map((q, i) => {
                 const key = ['q1', 'q2', 'q3', 'q4'][i];
                 return (PLAN_DATA[key].research + PLAN_DATA[key].develop + PLAN_DATA[key].service);
@@ -2229,17 +2785,22 @@ const FILE_INDEX = {
         }
 
         // 获取状态标签
-        function getStatusBadge(status) {
+        function getStatusBadge(phase) {
+            if (!phase) return '<span class="status-badge other">-</span>';
+            
             const statusMap = {
                 '待收尾款': 'pending',
                 '进行中': 'active',
-                '撤销立项': 'cancelled',
+                '已撤销立项': 'cancelled',
                 '已立项未招采': 'preparing',
                 '可研编制': 'preparing',
-                '项目建议书编制': 'preparing'
+                '初设编制': 'preparing',
+                '项目建议书编制': 'preparing',
+                '前期跟进': 'preparing'
             };
-            const className = statusMap[status] || 'other';
-            return '<span class="status-badge ' + className + '">' + (status || '未知') + '</span>';
+            
+            const cls = statusMap[phase] || 'other';
+            return `<span class="status-badge ${cls}">${phase}</span>`;
         }
 
         // 渲染项目表格
@@ -2250,23 +2811,33 @@ const FILE_INDEX = {
             const filtered = PROJECTS.filter(p => {
                 const matchSearch = !searchTerm ||
                     p.name.toLowerCase().includes(searchTerm) ||
-                    p.client.toLowerCase().includes(searchTerm) ||
-                    p.type.toLowerCase().includes(searchTerm) ||
-                    getPerson(p.name).toLowerCase().includes(searchTerm) ||
-                    getField(p.name).toLowerCase().includes(searchTerm);
+                    (p.client && p.client.toLowerCase().includes(searchTerm)) ||
+                    (p.type && p.type.toLowerCase().includes(searchTerm)) ||
+                    (p.leader && p.leader.toLowerCase().includes(searchTerm)) ||
+                    (p.field && p.field.toLowerCase().includes(searchTerm));
+                
                 const matchType = currentTypeFilter === '全部' || p.type === currentTypeFilter;
-                const matchPerson = currentPersonFilter === '全部' || getPerson(p.name) === currentPersonFilter;
-                const matchField = currentFieldFilter === '全部' || getField(p.name) === currentFieldFilter;
+                const person = getPerson(p.name);
+                const matchPerson = currentPersonFilter === '全部' || person === currentPersonFilter;
+                const field = getField(p.name);
+                const matchField = currentFieldFilter === '全部' || field === currentFieldFilter;
+                
                 return matchSearch && matchType && matchPerson && matchField;
             });
 
             tbody.innerHTML = filtered.map((p, index) => {
-                const isCancelled = p.phase === '撤销立项';
-                const isExpanded = expandedRows.has(p.name);
-                const year = p.year || getYear(p.name);
                 const person = getPerson(p.name);
                 const field = getField(p.name);
+                const year = p.year || getYear(p.name);
+                const isCancelled = p.phase === '撤销立项';
+                const isExpanded = expandedRows.has(p.name);
                 const docPath = getDocPath(p.name);
+                
+                // 获取项目文件
+                const projectFiles = getProjectFiles(p.name);
+                
+                // 获取项目成员
+                const projectMembers = p.members || [];
 
                 const detailRow = `
                     <tr class="detail-row ${isExpanded ? 'show' : ''}" id="detail-${index}">
@@ -2293,6 +2864,36 @@ const FILE_INDEX = {
                                     <div class="value">${p.phase}</div>
                                 </div>
                             </div>
+                            
+                            <!-- 项目文件区域 -->
+                            ${projectFiles.length > 0 ? `
+                                <div class="project-files">
+                                    <h4>📎 项目文件</h4>
+                                    <div class="file-list">
+                                        ${projectFiles.map(f => `
+                                            <a class="file-item" href="${f.url}" target="_blank" download>
+                                                <span class="file-icon">${getFileIcon(f.ext)}</span>
+                                                <span>${f.name}</span>
+                                                <span class="file-size">(${formatFileSize(f.size)})</span>
+                                            </a>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            <!-- 项目人员分配区域 -->
+                            <div class="project-members">
+                                <h4>
+                                    👥 参与人员
+                                    <button class="edit-members-btn" onclick="openMemberSelect('${p.name.replace(/'/g, "\\'")}')">编辑分配</button>
+                                </h4>
+                                <div class="member-tags">
+                                    ${projectMembers.length > 0 
+                                        ? projectMembers.map(m => `<span class="member-tag">${m}</span>`).join('')
+                                        : '<span class="no-members">暂无分配人员，点击编辑分配</span>'
+                                    }
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -2312,7 +2913,12 @@ const FILE_INDEX = {
                         <td>${p.q1 > 0 ? p.q1.toFixed(2) : '-'}</td>
                         <td>${p.q2 > 0 ? p.q2.toFixed(2) : '-'}</td>
                         <td>${p.q3 > 0 ? p.q3.toFixed(2) : '-'}</td>
-                        <td>${p.q4 > 0 ? p.q4.toFixed(2) : "-"}</td><td>${p.aq1 > 0 ? p.aq1.toFixed(2) : "-"}</td><td>${p.aq2 > 0 ? p.aq2.toFixed(2) : "-"}</td><td>${p.aq3 > 0 ? p.aq3.toFixed(2) : "-"}</td><td>${p.aq4 > 0 ? p.aq4.toFixed(2) : "-"}</td><td>${p.client || '-'}</td>
+                        <td>${p.q4 > 0 ? p.q4.toFixed(2) : "-"}</td>
+                        <td>${p.aq1 > 0 ? p.aq1.toFixed(2) : "-"}</td>
+                        <td>${p.aq2 > 0 ? p.aq2.toFixed(2) : "-"}</td>
+                        <td>${p.aq3 > 0 ? p.aq3.toFixed(2) : "-"}</td>
+                        <td>${p.aq4 > 0 ? p.aq4.toFixed(2) : "-"}</td>
+                        <td>${p.client || '-'}</td>
                     </tr>
                     ${detailRow}
                 `;
@@ -2413,7 +3019,6 @@ const FILE_INDEX = {
         function filterClients() {
             renderClientTable();
         }
-    
 
         // ==================== AI助手引擎 ====================
         
@@ -2437,7 +3042,6 @@ const FILE_INDEX = {
 
             appendAiMsg('user', q);
             
-            // Simulate thinking
             setTimeout(() => {
                 const answer = processAiQuery(q);
                 appendAiMsg('bot', answer);
@@ -2446,7 +3050,6 @@ const FILE_INDEX = {
 
         function appendAiMsg(role, html) {
             const body = document.getElementById('aiChatBody');
-            // Remove welcome message on first interaction
             const welcome = body.querySelector('.ai-welcome');
             if (welcome) welcome.remove();
 
@@ -2487,52 +3090,53 @@ const FILE_INDEX = {
             if (p.client) html += '<div class="pc-row" style="margin-top:4px"><span>甲方</span><span class="pc-val">' + p.client + '</span></div>';
             if (p.contact) html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + p.contact + (p.position ? ' · ' + p.position : '') + '</span></div>';
             if (p.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + p.phone + '</span></div>';
+            
             // Show files if available
-            const pFiles = (function() {
-                const docPath = getDocPath(p.name);
-                if (!docPath) return [];
-                const dirName = docPath.split('/').filter(Boolean).pop();
-                return FILE_INDEX[dirName] || [];
-            })();
+            const pFiles = getProjectFiles(p.name);
             if (pFiles.length > 0) {
                 html += '<div style="margin-top:6px;border-top:1px solid var(--border-color);padding-top:6px">';
                 html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">📎 项目文档</div>';
                 pFiles.forEach(f => {
-                    const icon = f.ext === '.pdf' ? '📄' : f.ext === '.docx' || f.ext === '.doc' ? '📝' : '📊';
+                    const icon = getFileIcon(f.ext);
                     html += '<a class="doc-link" href="' + f.url + '" target="_blank" download>' + icon + ' ' + f.name + '</a>';
                 });
                 html += '</div>';
             }
+            
+            // Show members if available
+            const members = p.members || [];
+            if (members.length > 0) {
+                html += '<div style="margin-top:6px;border-top:1px solid var(--border-color);padding-top:6px">';
+                html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">👥 参与人员</div>';
+                members.forEach(m => {
+                    html += '<span class="member-tag" style="margin:2px">' + m + '</span>';
+                });
+                html += '</div>';
+            }
+            
             html += '</div>';
             return html;
         }
 
-        // ============ 项目别名/简称映射 ============
+        // 项目别名/简称映射
         const PROJECT_ALIASES = {
             '龙川': '龙川CIM', '井盖': '通讯井盖AI智慧运维项目', '前海': '前海智慧规划平台',
             '内控': '内控体系管理助手及智能办公助手技术服务', '生态产品': '生态产品价值统一核算信息平台建设采购项目',
             '南山圳': '南山圳智慧规划设计场景建设项目', '云上二期': '南山圳智慧规划设计场景建设项目',
             '垂类': '规划和自然资源垂类AI模型训练和场景验证', '碳污': '碳污协同溯源及空气质量预报支持服务',
             '笋岗': '笋岗上盖数字孪生协同管控平台', '数字孪生': '笋岗上盖数字孪生协同管控平台',
-            '大空港': '大空港', '光明': '光明', '宝安': '宝安', '坪山': '坪山',
-            '龙华': '龙华', '罗湖': '罗湖', '福田': '福田', '盐田': '盐田',
-            '城市体检': '城市体检', '更新': '城市更新', '规划编审': '规划编审',
             'BIM': 'BIM', 'CIM': 'CIM',
         };
 
-        // ============ 智能评分匹配 ============
+        // 智能评分匹配
         function scoreMatch(query, text) {
             const q = query.toLowerCase().replace(/\s+/g, '');
             const t = text.toLowerCase().replace(/\s+/g, '');
             if (!q || !t) return 0;
             
-            // 完全匹配
             if (q === t) return 100;
-            
-            // 包含匹配（query是text的子串）
             if (t.includes(q)) return 80 + Math.min(q.length * 2, 20);
             
-            // text包含query的连续子串
             let bestSubLen = 0;
             for (let len = Math.min(q.length, t.length); len >= 2; len--) {
                 for (let i = 0; i <= q.length - len; i++) {
@@ -2546,7 +3150,6 @@ const FILE_INDEX = {
             if (bestSubLen >= 3) return 40 + bestSubLen * 5;
             if (bestSubLen >= 2) return 15 + bestSubLen * 3;
             
-            // 字符重合度
             let overlap = 0;
             for (const ch of q) { if (t.includes(ch)) overlap++; }
             const ratio = overlap / q.length;
@@ -2559,7 +3162,6 @@ const FILE_INDEX = {
             const results = [];
             const q = query.trim();
             
-            // 先检查别名映射
             const aliasKeys = Object.keys(PROJECT_ALIASES).sort((a, b) => b.length - a.length);
             let expandedQ = q;
             for (const alias of aliasKeys) {
@@ -2570,13 +3172,10 @@ const FILE_INDEX = {
             }
             
             for (const p of projects) {
-                // 对原始query和扩展后的query都算分
                 const score1 = scoreMatch(q, p.name);
                 const score2 = scoreMatch(expandedQ, p.name);
-                // 也匹配甲方、负责人
                 const score3 = (p.client && p.client.length > 1) ? scoreMatch(q, p.client) * 0.6 : 0;
                 const score4 = (p.leader && p.leader.length > 1) ? scoreMatch(q, p.leader) * 0.5 : 0;
-                // 专业方向匹配
                 const field = getField(p.name);
                 const score5 = (field && field !== '-') ? scoreMatch(q, field) * 0.4 : 0;
                 
@@ -2589,11 +3188,10 @@ const FILE_INDEX = {
             return results.sort((a, b) => b.score - a.score).map(r => r.project);
         }
 
-        // ============ 意图识别 ============
+        // 意图识别
         function detectIntent(q) {
             const intents = [];
             
-            // 查询意图
             if (/项目.*(情况|详情|信息|状态)/.test(q) || /^(查|问|看|找).*(项目|合同|收款)/.test(q)) 
                 intents.push('query_project');
             if (/活跃|进行中/.test(q)) intents.push('active_projects');
@@ -2607,17 +3205,16 @@ const FILE_INDEX = {
             if (/文件|合同.*下载|文档/.test(q)) intents.push('files');
             if (/阶段|可研|初设|收尾|立项|招采|前期/.test(q)) intents.push('phase');
             if (/负责/.test(q) && /的.*项目/.test(q)) intents.push('by_person');
+            if (/参与|成员|人员/.test(q) && /项目/.test(q)) intents.push('project_members');
             
             return intents.length > 0 ? intents : ['fuzzy'];
         }
 
-        // ============ 主查询处理 ============
+        // 主查询处理
         function processAiQuery(q) {
             const activeProjects = PROJECTS.filter(p => p.phase !== '撤销立项');
             const nonZeroProjects = activeProjects.filter(p => p.contract > 0);
             const intents = detectIntent(q);
-            
-            // === 意图路由 ===
             
             // 活跃项目
             if (intents.includes('active_projects')) {
@@ -2654,10 +3251,10 @@ const FILE_INDEX = {
                 const totalPlan = Object.values(PLAN_DATA).reduce((s,qq) => s + qq.research + qq.develop + qq.service, 0);
                 const totalActual = Object.values(ACTUAL_DATA).reduce((s,qq) => s + qq.research + qq.develop + qq.service, 0);
                 const pct = totalPlan > 0 ? (totalActual / totalPlan * 100).toFixed(1) : 0;
-                let html = '📊 <strong>2026年收款进度</strong><br><br>';
-                html += '计划收款：<span class="highlight">' + totalPlan.toFixed(2) + '万</span><br>';
-                html += '实际收款：<span class="highlight" style="color:#10b981">' + totalActual.toFixed(2) + '万</span><br>';
-                html += '完成率：<span class="highlight">' + pct + '%</span><br><br>';
+                let html = '📊 <strong>2026年收款进度</strong><br/><br/>';
+                html += '计划收款：<span class="highlight">' + totalPlan.toFixed(2) + '万</span><br/>';
+                html += '实际收款：<span class="highlight" style="color:#10b981">' + totalActual.toFixed(2) + '万</span><br/>';
+                html += '完成率：<span class="highlight">' + pct + '%</span><br/><br/>';
                 const quarters = ['Q1','Q2','Q3','Q4'];
                 const keys = ['q1','q2','q3','q4'];
                 html += '<div class="project-card">';
@@ -2674,23 +3271,11 @@ const FILE_INDEX = {
             
             // 甲方/客户
             if (intents.includes('clients')) {
-                const withContact = CLIENTS.filter(c => c.contact);
-                const specificClient = withContact.filter(c => scoreMatch(q, c.name) >= 30 || (c.contact && scoreMatch(q, c.contact) >= 30));
-                if (specificClient.length > 0) {
-                    let html = '找到相关客户信息：';
-                    specificClient.forEach(c => {
-                        html += '<div class="project-card">';
-                        html += '<div class="pc-name">' + c.name + '</div>';
-                        html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + c.contact + (c.position ? ' · ' + c.position : '') + '</span></div>';
-                        if (c.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + c.phone + '</span></div>';
-                        html += '</div>';
-                    });
-                    return html;
-                }
-                let html = '有联系方式的甲方共 <span class="highlight">' + withContact.length + '</span> 家：<br><br>';
+                const withContact = CLIENTS.filter(c => c.contact && c.phone);
+                let html = '当前有 <span class="highlight">' + withContact.length + '</span> 家：<br/><br/>';
                 withContact.forEach(c => {
                     html += '<div class="project-card">';
-                    html += '<div class="pc-name">' + c.name + '</div>';
+                    html += '<div class="pc-name">' + c.client + '</div>';
                     html += '<div class="pc-row"><span>对接人</span><span class="pc-val">' + c.contact + (c.position ? ' · ' + c.position : '') + '</span></div>';
                     if (c.phone) html += '<div class="pc-row"><span>联系方式</span><span class="pc-val">' + c.phone + '</span></div>';
                     html += '</div>';
@@ -2709,7 +3294,7 @@ const FILE_INDEX = {
                         fieldMap[f].contract += p.contract;
                     }
                 });
-                let html = '<strong>专业方向项目分布</strong><br><br>';
+                let html = '<strong>专业方向项目分布</strong><br/><br/>';
                 Object.entries(fieldMap).sort((a,b) => b[1].count - a[1].count).forEach(([field, data]) => {
                     html += '<div class="project-card">';
                     html += '<div class="pc-name">' + field + '</div>';
@@ -2733,21 +3318,45 @@ const FILE_INDEX = {
                 return html;
             }
             
+            // 项目人员查询
+            if (intents.includes('project_members')) {
+                const persons = ['胡晓飞', '韩江雪', '袁誉菲', '欧阳玲', '石名扬', '李承涛', '汪凯', '刘文娟', '袁富林', '夏丽'];
+                const matchedPerson = persons.find(p => q.includes(p));
+                if (matchedPerson) {
+                    const memberProjects = activeProjects.filter(p2 => (p2.members || []).includes(matchedPerson));
+                    if (memberProjects.length > 0) {
+                        let html = '<strong>' + matchedPerson + '</strong>参与的项目共 <span class="highlight">' + memberProjects.length + '</span> 个：';
+                        memberProjects.forEach(p => { html += projectCard(p); });
+                        return html;
+                    } else {
+                        return '<strong>' + matchedPerson + '</strong>目前暂无参与的项目分配。';
+                    }
+                }
+                // 通用项目成员查询
+                const projectsWithMembers = activeProjects.filter(p => p.members && p.members.length > 0);
+                if (projectsWithMembers.length > 0) {
+                    let html = '已分配人员的项目共 <span class="highlight">' + projectsWithMembers.length + '</span> 个：';
+                    projectsWithMembers.forEach(p => { html += projectCard(p); });
+                    return html;
+                }
+                return '目前暂无项目分配人员信息。';
+            }
+            
             // 总体概览
             if (intents.includes('overview')) {
                 const totalContract = nonZeroProjects.reduce((s,p) => s + p.contract, 0);
                 const totalPending = nonZeroProjects.reduce((s,p) => s + p.pending, 0);
                 const typeMap = {};
                 nonZeroProjects.forEach(p => { typeMap[p.type] = (typeMap[p.type]||0) + 1; });
-                let html = '<strong>经营概览</strong><br><br>';
+                let html = '<strong>业务概览</strong><br/><br/>';
                 html += '<div class="project-card">';
                 html += '<div class="pc-row"><span>总项目数</span><span class="pc-val">' + activeProjects.length + '个</span></div>';
                 html += '<div class="pc-row"><span>有效项目</span><span class="pc-val">' + nonZeroProjects.length + '个</span></div>';
                 html += '<div class="pc-row"><span>合同总额</span><span class="pc-val" style="color:#ffa726">' + totalContract.toFixed(2) + '万</span></div>';
                 html += '<div class="pc-row"><span>待收款总额</span><span class="pc-val">' + totalPending.toFixed(2) + '万</span></div>';
                 html += '<div class="pc-row"><span>收款率</span><span class="pc-val" style="color:#10b981">' + (totalContract > 0 ? ((totalContract-totalPending)/totalContract*100).toFixed(1) : 0) + '%</span></div>';
-                html += '</div><br>';
-                html += '<strong>按类型：</strong><br>';
+                html += '</div><br/>';
+                html += '<strong>按类型：</strong><br/>';
                 Object.entries(typeMap).forEach(([t, c]) => { html += getTypeTag(t) + ' ' + c + '个 &nbsp;'; });
                 return html;
             }
@@ -2782,7 +3391,7 @@ const FILE_INDEX = {
             }
             
             // 专业方向项目查询（非分布）
-            const fieldKeywords = {'咨询': '咨询工作', '智慧环境': '智慧环境', '工程协同': '工程协同', '智慧市政': '智慧市政', 'AI': 'AI智能化', '智能化': 'AI智能化', '运营': '城市/社区运营', '规划': '规划行业', '城市设计': '城市设计', '测绘': '测绘'};
+            const fieldKeywords = {'咨询': '咨询工作', '智慧环境': '智慧环境', '工程协同': '工程协同', '智慧市政': '智慧市政', 'AI': 'AI智能化', '智能化': 'AI智能化', '运营': '城市/社区运营', '规划': '规划行业'};
             for (const [kw, fieldName] of Object.entries(fieldKeywords)) {
                 if (q.includes(kw) && !q.includes('分布') && !q.includes('统计')) {
                     const fProjects = activeProjects.filter(p => getField(p.name) === fieldName);
@@ -2794,7 +3403,7 @@ const FILE_INDEX = {
                 }
             }
             
-            // === 项目模糊匹配（所有意图之后，作为通用匹配） ===
+            // 项目模糊匹配
             const matched = matchProjects(q, activeProjects);
             if (matched.length >= 1 && matched.length <= 5) {
                 let html = '找到 <span class="highlight">' + matched.length + '</span> 个相关项目：';
@@ -2804,30 +3413,19 @@ const FILE_INDEX = {
             if (matched.length > 5) {
                 let html = '找到 <span class="highlight">' + matched.length + '</span> 个相关项目，显示前5个：';
                 matched.slice(0, 5).forEach(p => { html += projectCard(p); });
-                html += '<br><span style="color:var(--text-muted);font-size:12px">还有' + (matched.length - 5) + '个项目，可以缩小搜索范围查看</span>';
+                html += '<br/><span style="color:var(--text-muted);font-size:12px">还有' + (matched.length - 5) + '个项目，可以缩小搜索范围查看</span>';
                 return html;
             }
             
-            // === 文件查询 ===
+            // 文件查询
             if (intents.includes('files')) {
                 const fileMatched = matchProjects(q, activeProjects);
-                function getProjectFiles(projectName) {
-                    const docPath = getDocPath(projectName);
-                    if (!docPath) return [];
-                    const dirName = docPath.split('/').filter(Boolean).pop();
-                    return FILE_INDEX[dirName] || [];
-                }
-                function formatSize(bytes) {
-                    if (bytes < 1024) return bytes + 'B';
-                    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + 'KB';
-                    return (bytes/1024/1024).toFixed(1) + 'MB';
-                }
                 function renderFileList(files) {
-                    if (!files.length) return '<br><span style="color:var(--text-muted);font-size:12px">暂无上传文档</span>';
+                    if (!files.length) return '<br/><span style="color:var(--text-muted);font-size:12px">暂无上传文档</span>';
                     let html = '';
                     files.forEach(f => {
-                        const icon = f.ext === '.pdf' ? '📄' : f.ext === '.docx' || f.ext === '.doc' ? '📝' : f.ext === '.xlsx' || f.ext === '.xls' ? '📊' : f.ext === '.pptx' ? '📑' : '📁';
-                        html += '<a class="doc-link" href="' + f.url + '" target="_blank" download>' + icon + ' ' + f.name + ' <span style="color:var(--text-muted);font-size:11px">(' + formatSize(f.size) + ')</span></a>';
+                        const icon = getFileIcon(f.ext);
+                        html += '<a class="doc-link" href="' + f.url + '" target="_blank" download>' + icon + ' ' + f.name + ' <span style="color:var(--text-muted);font-size:11px">(' + formatFileSize(f.size) + ')</span></a>';
                     });
                     return html;
                 }
@@ -2844,7 +3442,7 @@ const FILE_INDEX = {
                 }
                 const projectsWithFiles = activeProjects.filter(p => getProjectFiles(p.name).length > 0);
                 if (projectsWithFiles.length > 0) {
-                    let html = '当前有 <span class="highlight">' + projectsWithFiles.length + '</span> 个项目已上传文档：<br><br>';
+                    let html = '当前有 <span class="highlight">' + projectsWithFiles.length + '</span> 个项目已上传文档：<br/><br/>';
                     projectsWithFiles.forEach(p => {
                         const files = getProjectFiles(p.name);
                         html += '<div class="project-card">';
@@ -2857,20 +3455,19 @@ const FILE_INDEX = {
                 return '当前暂无项目上传文档。你可以输入具体项目名称来查询该项目的相关文件。';
             }
             
-            // === Fallback ===
-            let html = '我没有完全理解你的问题 🤔<br><br>你可以试试这样问：<br>';
-            html += '• "龙川项目的情况" — 查询项目详情<br>';
-            html += '• "活跃项目有哪些" — 查看进行中项目<br>';
-            html += '• "哪个项目待收款最多" — 查看待收款排名<br>';
-            html += '• "已收款的项目" — 查看实际收款<br>';
-            html += '• "甲方联系方式" — 查看客户通讯录<br>';
-            html += '• "2026收款进度" — 查看计划vs实际<br>';
-            html += '• "智慧环境方向的项目" — 按专业方向查询<br>';
-            html += '• "胡晓飞负责的项目" — 按负责人查询<br>';
-            html += '• "总体概览" — 经营数据总览';
+            // Fallback
+            let html = '我没有完全理解你的问题 🤔<br/><br/>你可以试试这样问：<br/>';
+            html += '• "龙川项目的情况" — 查询项目详情<br/>';
+            html += '• "活跃项目有哪些" — 查看进行中项目<br/>';
+            html += '• "待收款最多的项目" — 查看待收款排名<br/>';
+            html += '• "已收款的项目" — 查看实际收款<br/>';
+            html += '• "甲方联系方式" — 查看客户通讯录<br/>';
+            html += '• "2026收款进度" — 查看计划vs实际<br/>';
+            html += '• "智慧环境方向的项目" — 按专业方向查询<br/>';
+            html += '• "胡晓飞负责的项目" — 按负责人查询<br/>';
+            html += '• "总体概览" — 业务数据总览';
             return html;
         }
-
     </script>
 
     <!-- AI助手面板 -->
@@ -2881,14 +3478,14 @@ const FILE_INDEX = {
 
     <div class="ai-panel" id="aiPanel">
         <div class="ai-panel-header">
-            <h3>✨ 智能经营助手</h3>
+            <h3>✨ 智能业务助手</h3>
             <button class="ai-panel-close" onclick="toggleAiPanel()">✕</button>
         </div>
         <div class="ai-panel-body" id="aiChatBody">
             <div class="ai-welcome">
                 <div class="ai-logo">✨</div>
-                <strong>经营数据智能助手</strong><br>
-                可以问我关于项目、客户、收款等<br>经营相关的任何问题
+                <strong>业务数据智能助手</strong><br>
+                可以问我关于项目、客户、收款、人员分配等<br>业务相关的任何问题
             </div>
         </div>
         <div class="ai-quick-actions">
