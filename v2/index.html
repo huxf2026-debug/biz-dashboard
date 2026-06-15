@@ -1650,8 +1650,24 @@
 
     <!-- 部门人员Tab -->
     <div class="main-content" id="membersTab">
+        <div class="charts-section" style="margin-bottom: 16px;">
+            <div class="chart-card">
+                <h3>📊 人员构成（按角色）</h3>
+                <div class="chart-container" id="memberRolePieChart" style="height: 250px;"></div>
+            </div>
+        </div>
+        <div class="charts-section" style="margin-bottom: 16px;">
+            <div class="chart-card" style="flex: 1;">
+                <h3>📈 各角色承担项目数量</h3>
+                <div class="chart-container" id="roleProjectBarChart" style="height: 250px;"></div>
+            </div>
+            <div class="chart-card" style="flex: 1;">
+                <h3>🏆 个人工作量排名</h3>
+                <div class="chart-container" id="personWorkloadBarChart" style="height: 250px;"></div>
+            </div>
+        </div>
         <div class="table-section">
-            <h3>👥 部门人员参与项目情况</h3>
+            <h3>👥 人员参与项目列表</h3>
             <div id="deptMembersList"></div>
         </div>
     </div>
@@ -1915,7 +1931,11 @@
             return members;
         }
 
-        // 2026年季度收款计划
+        // 2026年计划收款和实际收款常量（硬编码）
+const TOTAL_2026_PLAN = 1204.05;
+const TOTAL_2026_ACTUAL = 0;
+
+// 2026年季度收款计划
         const PLAN_DATA = {
             q1: { research: 10.0, develop: 80.0, service: 30.0 },
             q2: { research: 40.0, develop: 150.0, service: 200.0 },
@@ -2237,6 +2257,7 @@
         }
 
         // 渲染部门人员Tab
+// 渲染部门人员Tab（带图表）
         function renderDeptMembers() {
             const container = document.getElementById('deptMembersList');
             const allMembers = getAllTeamMembers();
@@ -2261,6 +2282,9 @@
                     });
                 }
             });
+            
+            // 渲染图表
+            initMemberCharts(allMembers, memberProjectCount);
             
             let html = '';
             
@@ -2291,6 +2315,129 @@
             }
             
             container.innerHTML = html || '<div class="empty-state">暂无人员数据</div>';
+        }
+        
+        // 初始化人员图表
+        function initMemberCharts(allMembers, memberProjectCount) {
+            // 1. 饼图：人员构成分布（按角色）
+            const rolePieChart = echarts.init(document.getElementById('memberRolePieChart'));
+            const roleDistribution = {};
+            allMembers.forEach(m => {
+                roleDistribution[m.role] = (roleDistribution[m.role] || 0) + 1;
+            });
+            const pieOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}人 ({d}%)'
+                },
+                color: ['#00d4ff', '#ffa726', '#10b981', '#ef4444', '#9c27b0', '#ff9800'],
+                series: [{
+                    type: 'pie',
+                    radius: ['35%', '65%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: {
+                        borderRadius: 8,
+                        borderColor: '#141938',
+                        borderWidth: 2
+                    },
+                    label: {
+                        color: '#a0aec0',
+                        formatter: '{b}: {c}人'
+                    },
+                    data: Object.entries(roleDistribution).map(([role, count]) => ({
+                        name: role,
+                        value: count
+                    }))
+                }]
+            };
+            rolePieChart.setOption(pieOption);
+            
+            // 2. 柱状图：各角色承担项目数量
+            const roleProjectChart = echarts.init(document.getElementById('roleProjectBarChart'));
+            const roleProjectData = {};
+            allMembers.forEach(m => {
+                const count = memberProjectCount[m.name] || 0;
+                roleProjectData[m.role] = (roleProjectData[m.role] || 0) + count;
+            });
+            const barOption1 = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: Object.keys(roleProjectData),
+                    axisLabel: { color: '#a0aec0', rotate: 0 },
+                    axisLine: { lineStyle: { color: '#2d3748' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: '#a0aec0' },
+                    axisLine: { lineStyle: { color: '#2d3748' } },
+                    splitLine: { lineStyle: { color: '#2d3748' } }
+                },
+                series: [{
+                    type: 'bar',
+                    data: Object.values(roleProjectData),
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#00d4ff' },
+                            { offset: 1, color: '#0080ff' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    label: { show: true, color: '#fff', position: 'top' }
+                }]
+            };
+            roleProjectChart.setOption(barOption1);
+            
+            // 3. 柱状图：个人工作量排名
+            const personWorkloadChart = echarts.init(document.getElementById('personWorkloadBarChart'));
+            const personData = allMembers
+                .map(m => ({ name: m.name, count: memberProjectCount[m.name] || 0 }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 10); // 取前10名
+            
+            const barOption2 = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: personData.map(p => p.name),
+                    axisLabel: { color: '#a0aec0', rotate: 30 },
+                    axisLine: { lineStyle: { color: '#2d3748' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: '#a0aec0' },
+                    axisLine: { lineStyle: { color: '#2d3748' } },
+                    splitLine: { lineStyle: { color: '#2d3748' } }
+                },
+                series: [{
+                    type: 'bar',
+                    data: personData.map(p => p.count),
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#ffa726' },
+                            { offset: 1, color: '#ff9800' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    label: { show: true, color: '#fff', position: 'top' }
+                }]
+            };
+            personWorkloadChart.setOption(barOption2);
+            
+            // 响应窗口变化
+            window.addEventListener('resize', () => {
+                rolePieChart.resize();
+                roleProjectChart.resize();
+                personWorkloadChart.resize();
+            });
         }
 
         // 格式化文件大小
@@ -2385,9 +2532,9 @@
                 }
             });
 
-            total_2026_plan = Object.values(PLAN_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
+            total_2026_plan = TOTAL_2026_PLAN;
 
-            let total_2026_actual = Object.values(ACTUAL_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
+            let total_2026_actual = TOTAL_2026_ACTUAL;
 
             const field_stats = {};
             PROJECTS.forEach(p => {
@@ -2803,8 +2950,210 @@
             return `<span class="status-badge ${cls}">${phase}</span>`;
         }
 
-        // 渲染项目表格
-        function renderProjectTable() {
+        // 项目卡片排序状态
+let projectSortType = 'default';
+
+// 渲染项目卡片
+function renderProjectCards() {
+    const container = document.getElementById('projectTableBody');
+    const searchTerm = document.getElementById('projectSearch').value.toLowerCase();
+
+    const filtered = PROJECTS.filter(p => {
+        const matchSearch = !searchTerm ||
+            p.name.toLowerCase().includes(searchTerm) ||
+            (p.client && p.client.toLowerCase().includes(searchTerm)) ||
+            (p.type && p.type.toLowerCase().includes(searchTerm)) ||
+            (p.leader && p.leader.toLowerCase().includes(searchTerm)) ||
+            (p.field && p.field.toLowerCase().includes(searchTerm));
+        
+        const matchType = currentTypeFilter === '全部' || p.type === currentTypeFilter;
+        const person = getPerson(p.name);
+        const matchPerson = currentPersonFilter === '全部' || person === currentPersonFilter;
+        const field = getField(p.name);
+        const matchField = currentFieldFilter === '全部' || field === currentFieldFilter;
+        
+        return matchSearch && matchType && matchPerson && matchField;
+    });
+
+    // 排序
+    let sorted = [...filtered];
+    switch(projectSortType) {
+        case 'time':
+            sorted.sort((a, b) => (b.year || getYear(b.name) || 0) - (a.year || getYear(a.name) || 0));
+            break;
+        case 'amount':
+            sorted.sort((a, b) => b.contract - a.contract);
+            break;
+        case 'type':
+            const typeOrder = {'研究': 1, '集成开发': 2, '服务': 3, '': 4};
+            sorted.sort((a, b) => (typeOrder[a.type] || 99) - (typeOrder[b.type] || 99));
+            break;
+        case 'phase':
+            const phaseOrder = {'进行中': 1, '前期跟进': 2, '可研编制': 3, '初设编制': 4, '项目建议书编制': 5, '已立项未招采': 6, '待收尾款': 7, '已撤销立项': 99};
+            sorted.sort((a, b) => (phaseOrder[a.phase] || 50) - (phaseOrder[b.phase] || 50));
+            break;
+        default:
+            // 默认按年份降序
+            sorted.sort((a, b) => (b.year || getYear(b.name) || 0) - (a.year || getYear(a.name) || 0));
+    }
+
+    if (sorted.length === 0) {
+        container.innerHTML = '<div class="empty-state">没有找到匹配的项目</div>';
+        return;
+    }
+
+    container.innerHTML = sorted.map((p, index) => {
+        const person = getPerson(p.name);
+        const field = getField(p.name);
+        const year = p.year || getYear(p.name);
+        const isCancelled = p.phase === '撤销立项';
+        const isExpanded = expandedRows.has(p.name);
+        const docPath = getDocPath(p.name);
+        const projectFiles = getProjectFiles(p.name);
+        const projectMembers = p.members || [];
+        const typeClass = p.type === '研究' ? 'type-research' : p.type === '集成开发' ? 'type-dev' : p.type === '服务' ? 'type-service' : 'type-other';
+        
+        // 计算计划收款和实际收款
+        const planTotal = (p.q1 || 0) + (p.q2 || 0) + (p.q3 || 0) + (p.q4 || 0);
+        const actualTotal = (p.aq1 || 0) + (p.aq2 || 0) + (p.aq3 || 0) + (p.aq4 || 0);
+        
+        const detailContent = `
+            <div class="card-detail-content">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">类型</div>
+                        <div class="value">${p.type || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">专业方向</div>
+                        <div class="value">${field || '-'}</div>
+                    </div>
+                </div>
+                ${projectMembers.length > 0 ? `
+                <div class="detail-section">
+                    <h5>👥 组织成员</h5>
+                    <div class="member-tags">${projectMembers.map(m => `<span class="member-tag">${m}</span>`).join('')}</div>
+                </div>
+                ` : ''}
+                ${p.client ? `
+                <div class="detail-section">
+                    <h5>🏢 甲方信息</h5>
+                    <div class="client-info">
+                        <div class="detail-row"><span>单位：</span>${p.client}</div>
+                        <div class="detail-row"><span>对接人：</span>${p.contact || '-'}</div>
+                        <div class="detail-row"><span>职位：</span>${p.position || '-'}</div>
+                        <div class="detail-row"><span>电话：</span>${p.phone || '-'}</div>
+                    </div>
+                </div>
+                ` : ''}
+                <div class="detail-section">
+                    <h5>💰 收款明细</h5>
+                    <div class="payment-grid">
+                        <div class="payment-item">
+                            <span class="label">待收款</span>
+                            <span class="value">${p.pending > 0 ? p.pending.toFixed(2) + '万' : '-'}</span>
+                        </div>
+                        <div class="payment-item">
+                            <span class="label">计划收款</span>
+                            <span class="value">${planTotal > 0 ? planTotal.toFixed(2) + '万' : '-'}</span>
+                        </div>
+                        <div class="payment-item">
+                            <span class="label">实际收款</span>
+                            <span class="value actual">${actualTotal > 0 ? actualTotal.toFixed(2) + '万' : '-'}</span>
+                        </div>
+                    </div>
+                    <div class="quarterly-grid">
+                        <div class="quarter-col">
+                            <div class="quarter-title">计划</div>
+                            <div>Q1: ${p.q1 > 0 ? p.q1.toFixed(2) : '-'}万</div>
+                            <div>Q2: ${p.q2 > 0 ? p.q2.toFixed(2) : '-'}万</div>
+                            <div>Q3: ${p.q3 > 0 ? p.q3.toFixed(2) : '-'}万</div>
+                            <div>Q4: ${p.q4 > 0 ? p.q4.toFixed(2) : '-'}万</div>
+                        </div>
+                        <div class="quarter-col">
+                            <div class="quarter-title">实际</div>
+                            <div>Q1: ${p.aq1 > 0 ? p.aq1.toFixed(2) : '-'}万</div>
+                            <div>Q2: ${p.aq2 > 0 ? p.aq2.toFixed(2) : '-'}万</div>
+                            <div>Q3: ${p.aq3 > 0 ? p.aq3.toFixed(2) : '-'}万</div>
+                            <div>Q4: ${p.aq4 > 0 ? p.aq4.toFixed(2) : '-'}万</div>
+                        </div>
+                    </div>
+                </div>
+                ${projectFiles.length > 0 ? `
+                <div class="detail-section">
+                    <h5>📎 项目文件</h5>
+                    <div class="file-list">${projectFiles.map(f => `
+                        <a class="file-item" href="${f.url}" target="_blank" download>
+                            <span class="file-icon">${getFileIcon(f.ext)}</span>
+                            <span>${f.name}</span>
+                            <span class="file-size">(${formatFileSize(f.size)})</span>
+                        </a>
+                    `).join('')}</div>
+                </div>
+                ` : ''}
+                <div class="detail-actions">
+                    <button class="edit-members-btn" onclick="openMemberSelect('${p.name.replace(/'/g, "\\'")}')">✏️ 编辑成员分配</button>
+                </div>
+            </div>
+        `;
+        
+        return `
+            <div class="project-card-item ${isCancelled ? 'cancelled' : ''} ${isExpanded ? 'expanded' : ''}">
+                <div class="card-main" onclick="toggleDetail('${p.name.replace(/'/g, "\\'")}', ${index})">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="project-name">${p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name}</span>
+                            ${docPath ? '<span class="doc-icon-btn" onclick="event.stopPropagation(); openDocModal('' + p.name.replace(/'/g, "\\'") + '')">📁</span>' : ''}
+                        </div>
+                        <div class="card-expand-btn">${isExpanded ? '▲ 收起' : '▼ 详情'}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-info-row">
+                            <span class="year-badge">${year || '-'}</span>
+                            <span class="type-badge ${typeClass}">${p.type || '-'}</span>
+                            <span class="person-tag" onclick="event.stopPropagation(); setProjectFilter('${person}', 'person')">👤 ${person}</span>
+                            <span class="field-tag" onclick="event.stopPropagation(); setProjectFilter('${field}', 'field')">🏷️ ${field}</span>
+                        </div>
+                        <div class="card-stats-row">
+                            <div class="stat-item">
+                                <span class="stat-label">合同额</span>
+                                <span class="stat-value gold">${p.contract > 0 ? p.contract.toFixed(2) + '万' : '-'}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">阶段</span>
+                                <span class="stat-value">${getStatusBadge(p.phase)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">计划收款</span>
+                                <span class="stat-value">${planTotal > 0 ? planTotal.toFixed(2) + '万' : '-'}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">实际收款</span>
+                                <span class="stat-value actual">${actualTotal > 0 ? actualTotal.toFixed(2) + '万' : '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-detail ${isExpanded ? 'show' : ''}">
+                    ${detailContent}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 排序按钮点击
+function setProjectSort(type) {
+    projectSortType = type;
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.sort === type);
+    });
+    renderProjectCards();
+}
+
+// 重写renderProjectTable为卡片模式
+const originalRenderProjectTable = renderProjectTable;
+renderProjectTable = renderProjectCards;
             const tbody = document.getElementById('projectTableBody');
             const searchTerm = document.getElementById('projectSearch').value.toLowerCase();
 
