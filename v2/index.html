@@ -379,15 +379,228 @@
         .table-wrapper {
             overflow-x: auto;
         }
-        .card-list-container {
-            max-height: 70vh;
-            overflow-y: auto;
-            padding: 8px 0;
+        /* 项目表格样式 - 精简横向列表 */
+        .project-table-wrapper {
+            overflow: visible;
+            border-radius: 8px;
+            background: var(--bg-card);
         }
-        .card-list-container #projectTableBody {
-            display: flex;
-            flex-direction: column;
+        .project-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .project-table thead {
+            background: var(--bg-primary);
+        }
+        .project-table th {
+            padding: 10px 8px;
+            text-align: left;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+        .project-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .project-table tbody tr {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .project-table tbody tr:hover {
+            background: var(--bg-card-hover);
+        }
+        .project-table tbody tr.cancelled {
+            opacity: 0.5;
+        }
+        .project-table tbody tr.cancelled td:first-child {
+            text-decoration: line-through;
+        }
+        /* 列宽分配 - 项目名称最宽，其他紧凑 */
+        .col-name { width: 25%; }
+        .col-year { width: 6%; text-align: center; }
+        .col-contract { width: 10%; text-align: right; }
+        .col-phase { width: 12%; }
+        .col-plan { width: 10%; text-align: right; }
+        .col-actual { width: 10%; text-align: right; }
+        .col-files { width: 5%; text-align: center; }
+        .col-actions { width: 5%; text-align: center; }
+        /* 单元格文字截断 */
+        .project-table .cell-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .project-table .cell-year {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        .project-table .cell-num {
+            text-align: right;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 12px;
+        }
+        .cell-num.gold { color: var(--accent-gold); }
+        .cell-num.actual { color: var(--success); }
+        /* 操作按钮 */
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+        }
+        .icon-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .icon-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .icon-btn.disabled:hover {
+            background: transparent;
+            color: var(--text-muted);
+        }
+        /* 展开详情行 */
+        .detail-row {
+            display: none;
+        }
+        .detail-row.show {
+            display: table-row;
+        }
+        .detail-row td {
+            padding: 0;
+            border-bottom: 2px solid var(--accent-blue);
+        }
+        .detail-content {
+            background: var(--bg-primary);
+            padding: 16px 20px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .detail-item {
+            background: var(--bg-card);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .detail-item .label {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        .detail-item .value {
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+        .detail-section {
+            margin-top: 12px;
+        }
+        .detail-section h5 {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
+            margin-bottom: 12px;
+        }
+        .payment-item {
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .payment-item .label {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        .payment-item .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .payment-item .value.actual {
+            color: var(--success);
+        }
+        .quarterly-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .quarter-col {
+            background: var(--bg-card);
+            padding: 10px 12px;
+            border-radius: 6px;
+        }
+        .quarter-title {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .quarter-col div {
+            font-size: 12px;
+            padding: 2px 0;
+            color: var(--text-secondary);
+        }
+        .client-info {
+            background: var(--bg-card);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .client-info .detail-row-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+        .client-info .detail-row-info span:first-child {
+            color: var(--text-muted);
+        }
+        .client-info .detail-row-info span:last-child {
+            color: var(--text-primary);
+        }
+        .member-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .member-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(255, 167, 38, 0.15);
+            color: var(--accent-gold);
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .detail-actions {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
         }
 
         table {
@@ -1418,6 +1631,27 @@
             .ai-panel { width: 100vw; right: -100vw; }
             .ai-panel-toggle { width: 32px; height: 80px; font-size: 12px; }
         }
+
+        /* 排序按钮样式 */
+        .sort-btn {
+            padding: 5px 12px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .sort-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        .sort-btn.active {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
     </style>
 </head>
 <body>
@@ -1614,6 +1848,13 @@
                     <button class="filter-btn" data-filter="负责人-欧阳玲" onclick="setProjectFilter('欧阳玲', 'person')">欧阳玲</button>
                     <button class="filter-btn" data-filter="负责人-石名扬" onclick="setProjectFilter('石名扬', 'person')">石名扬</button>
                 </div>
+                <div class="filter-buttons" style="margin-left: 16px; border-left: 1px solid var(--border-color); padding-left: 16px;">
+                    <span style="color: var(--text-muted); font-size: 12px; margin-right: 8px;">排序:</span>
+                    <button class="sort-btn active" data-sort="time" onclick="setProjectSort('time')">时间</button>
+                    <button class="sort-btn" data-sort="amount" onclick="setProjectSort('amount')">金额</button>
+                    <button class="sort-btn" data-sort="type" onclick="setProjectSort('type')">类型</button>
+                    <button class="sort-btn" data-sort="phase" onclick="setProjectSort('phase')">阶段</button>
+                </div>
             </div>
             <div class="filter-row" style="margin-top: 12px;">
                 <div class="filter-buttons">
@@ -1629,10 +1870,24 @@
             </div>
         </div>
 
-        <div class="table-section">
-            <div class="card-list-container" id="projectCardContainer">
-                <div id="projectTableBody">
-                </div>
+        <div class="table-section" style="padding: 0;">
+            <div class="project-table-wrapper" id="projectTableWrapper">
+                <table class="project-table">
+                    <thead>
+                        <tr>
+                            <th class="col-name">项目名称</th>
+                            <th class="col-year">年份</th>
+                            <th class="col-contract">合同额(万)</th>
+                            <th class="col-phase">当前阶段</th>
+                            <th class="col-plan">计划收款</th>
+                            <th class="col-actual">实际收款</th>
+                            <th class="col-files">📁</th>
+                            <th class="col-actions">✏️</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectTableBody">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -2947,7 +3202,7 @@ const TOTAL_2026_PLAN = 1429.99;
         }
 
         // 项目卡片排序状态
-let projectSortType = 'default';
+let projectSortType = 'time';
 
 // 渲染项目卡片
 function renderProjectCards() {
@@ -2989,16 +3244,16 @@ function renderProjectCards() {
             sorted.sort((a, b) => (phaseOrder[a.phase] || 50) - (phaseOrder[b.phase] || 50));
             break;
         default:
-            // 默认按年份降序
             sorted.sort((a, b) => (b.year || getYear(b.name) || 0) - (a.year || getYear(a.name) || 0));
     }
 
     if (sorted.length === 0) {
-        container.innerHTML = '<div class="empty-state">没有找到匹配的项目</div>';
+        container.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">没有找到匹配的项目</td></tr>';
         return;
     }
 
-    container.innerHTML = sorted.map((p, index) => {
+    let html = '';
+    sorted.forEach((p, index) => {
         const person = getPerson(p.name);
         const field = getField(p.name);
         const year = p.year || getYear(p.name);
@@ -3007,136 +3262,85 @@ function renderProjectCards() {
         const docPath = getDocPath(p.name);
         const projectFiles = getProjectFiles(p.name);
         const projectMembers = p.members || [];
-        const typeClass = p.type === '研究' ? 'type-research' : p.type === '集成开发' ? 'type-dev' : p.type === '服务' ? 'type-service' : 'type-other';
         
-        // 计算计划收款和实际收款
         const planTotal = (p.q1 || 0) + (p.q2 || 0) + (p.q3 || 0) + (p.q4 || 0);
         const actualTotal = (p.aq1 || 0) + (p.aq2 || 0) + (p.aq3 || 0) + (p.aq4 || 0);
         
-        const detailContent = `
-            <div class="card-detail-content">
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="label">类型</div>
-                        <div class="value">${p.type || '-'}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="label">专业方向</div>
-                        <div class="value">${field || '-'}</div>
-                    </div>
-                </div>
-                ${projectMembers.length > 0 ? `
-                <div class="detail-section">
-                    <h5>👥 组织成员</h5>
-                    <div class="member-tags">${projectMembers.map(m => `<span class="member-tag">${m}</span>`).join('')}</div>
-                </div>
-                ` : ''}
-                ${p.client ? `
-                <div class="detail-section">
-                    <h5>🏢 甲方信息</h5>
-                    <div class="client-info">
-                        <div class="detail-row"><span>单位：</span>${p.client}</div>
-                        <div class="detail-row"><span>对接人：</span>${p.contact || '-'}</div>
-                        <div class="detail-row"><span>职位：</span>${p.position || '-'}</div>
-                        <div class="detail-row"><span>电话：</span>${p.phone || '-'}</div>
-                    </div>
-                </div>
-                ` : ''}
-                <div class="detail-section">
-                    <h5>💰 收款明细</h5>
-                    <div class="payment-grid">
-                        <div class="payment-item">
-                            <span class="label">待收款</span>
-                            <span class="value">${p.pending > 0 ? p.pending.toFixed(2) + '万' : '-'}</span>
-                        </div>
-                        <div class="payment-item">
-                            <span class="label">计划收款</span>
-                            <span class="value">${planTotal > 0 ? planTotal.toFixed(2) + '万' : '-'}</span>
-                        </div>
-                        <div class="payment-item">
-                            <span class="label">实际收款</span>
-                            <span class="value actual">${actualTotal > 0 ? actualTotal.toFixed(2) + '万' : '-'}</span>
-                        </div>
-                    </div>
-                    <div class="quarterly-grid">
-                        <div class="quarter-col">
-                            <div class="quarter-title">计划</div>
-                            <div>Q1: ${p.q1 > 0 ? p.q1.toFixed(2) : '-'}万</div>
-                            <div>Q2: ${p.q2 > 0 ? p.q2.toFixed(2) : '-'}万</div>
-                            <div>Q3: ${p.q3 > 0 ? p.q3.toFixed(2) : '-'}万</div>
-                            <div>Q4: ${p.q4 > 0 ? p.q4.toFixed(2) : '-'}万</div>
-                        </div>
-                        <div class="quarter-col">
-                            <div class="quarter-title">实际</div>
-                            <div>Q1: ${p.aq1 > 0 ? p.aq1.toFixed(2) : '-'}万</div>
-                            <div>Q2: ${p.aq2 > 0 ? p.aq2.toFixed(2) : '-'}万</div>
-                            <div>Q3: ${p.aq3 > 0 ? p.aq3.toFixed(2) : '-'}万</div>
-                            <div>Q4: ${p.aq4 > 0 ? p.aq4.toFixed(2) : '-'}万</div>
-                        </div>
-                    </div>
-                </div>
-                ${projectFiles.length > 0 ? `
-                <div class="detail-section">
-                    <h5>📎 项目文件</h5>
-                    <div class="file-list">${projectFiles.map(f => `
-                        <a class="file-item" href="${f.url}" target="_blank" download>
-                            <span class="file-icon">${getFileIcon(f.ext)}</span>
-                            <span>${f.name}</span>
-                            <span class="file-size">(${formatFileSize(f.size)})</span>
-                        </a>
-                    `).join('')}</div>
-                </div>
-                ` : ''}
-                <div class="detail-actions">
-                    <button class="edit-members-btn" onclick="openMemberSelect('${p.name.replace(/'/g, "\\'")}')">✏️ 编辑成员分配</button>
-                </div>
-            </div>
-        `;
+        const displayName = p.name.length > 25 ? p.name.substring(0, 25) + '...' : p.name;
+        const escapedName = p.name.replace(/'/g, "\\'");
         
-        return `
-            <div class="project-card-item ${isCancelled ? 'cancelled' : ''} ${isExpanded ? 'expanded' : ''}">
-                <div class="card-main" onclick="toggleDetail('${p.name.replace(/'/g, "\\'")}', ${index})">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span class="project-name">${p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name}</span>
-                            ${docPath ? '<span class="doc-icon-btn" onclick="event.stopPropagation(); openDocModal(\'' + p.name.replace(/'/g, "\\'") + '\')">📁</span>' : ''}
-                        </div>
-                        <div class="card-expand-btn">${isExpanded ? '▲ 收起' : '▼ 详情'}</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-info-row">
-                            <span class="year-badge">${year || '-'}</span>
-                            <span class="type-badge ${typeClass}">${p.type || '-'}</span>
-                            <span class="person-tag" onclick="event.stopPropagation(); setProjectFilter('${person}', 'person')">👤 ${person}</span>
-                            <span class="field-tag" onclick="event.stopPropagation(); setProjectFilter('${field}', 'field')">🏷️ ${field}</span>
-                        </div>
-                        <div class="card-stats-row">
-                            <div class="stat-item">
-                                <span class="stat-label">合同额</span>
-                                <span class="stat-value gold">${p.contract > 0 ? p.contract.toFixed(2) + '万' : '-'}</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">阶段</span>
-                                <span class="stat-value">${getStatusBadge(p.phase)}</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">计划收款</span>
-                                <span class="stat-value">${planTotal > 0 ? planTotal.toFixed(2) + '万' : '-'}</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">实际收款</span>
-                                <span class="stat-value actual">${actualTotal > 0 ? actualTotal.toFixed(2) + '万' : '-'}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-detail ${isExpanded ? 'show' : ''}">
-                    ${detailContent}
-                </div>
-            </div>
-        `;
-    }).join('');
+        // 数据行
+        html += '<tr class="' + (isCancelled ? 'cancelled' : '') + '" onclick="toggleDetail(\'' + escapedName + '\', ' + index + ')">';
+        html += '<td class="cell-name" title="' + p.name + '">' + displayName + '</td>';
+        html += '<td class="cell-year">' + (year || '-') + '</td>';
+        html += '<td class="cell-num gold">' + (p.contract > 0 ? p.contract.toFixed(2) : '-') + '</td>';
+        html += '<td>' + getStatusBadge(p.phase) + '</td>';
+        html += '<td class="cell-num">' + (planTotal > 0 ? planTotal.toFixed(2) : '-') + '</td>';
+        html += '<td class="cell-num actual">' + (actualTotal > 0 ? actualTotal.toFixed(2) : '-') + '</td>';
+        
+        if (projectFiles.length > 0) {
+            html += '<td class="col-files"><span class="icon-btn" onclick="event.stopPropagation(); openDocModal(\'' + escapedName + '\')">📁</span></td>';
+        } else {
+            html += '<td class="col-files"><span class="icon-btn disabled">📁</span></td>';
+        }
+        
+        html += '<td class="col-actions"><span class="icon-btn" onclick="event.stopPropagation(); openMemberSelect(\'' + escapedName + '\')">✏️</span></td>';
+        html += '</tr>';
+        
+        // 展开详情行
+        html += '<tr class="detail-row ' + (isExpanded ? 'show' : '') + '">';
+        html += '<td colspan="8"><div class="detail-content">';
+        
+        html += '<div class="detail-grid">';
+        html += '<div class="detail-item"><div class="label">类型</div><div class="value">' + (p.type || '-') + '</div></div>';
+        html += '<div class="detail-item"><div class="label">专业方向</div><div class="value">' + (field || '-') + '</div></div>';
+        html += '<div class="detail-item"><div class="label">待收款</div><div class="value">' + (p.pending > 0 ? p.pending.toFixed(2) + '万' : '-') + '</div></div>';
+        html += '<div class="detail-item"><div class="label">负责人</div><div class="value">' + person + '</div></div>';
+        html += '</div>';
+        
+        html += '<div class="detail-section">';
+        html += '<h5>💰 季度收款明细</h5>';
+        html += '<div class="quarterly-grid">';
+        html += '<div class="quarter-col"><div class="quarter-title">计划收款</div>';
+        html += '<div>Q1: ' + (p.q1 > 0 ? p.q1.toFixed(2) : '-') + '万</div>';
+        html += '<div>Q2: ' + (p.q2 > 0 ? p.q2.toFixed(2) : '-') + '万</div>';
+        html += '<div>Q3: ' + (p.q3 > 0 ? p.q3.toFixed(2) : '-') + '万</div>';
+        html += '<div>Q4: ' + (p.q4 > 0 ? p.q4.toFixed(2) : '-') + '万</div>';
+        html += '</div>';
+        html += '<div class="quarter-col"><div class="quarter-title">实际收款</div>';
+        html += '<div>Q1: ' + (p.aq1 > 0 ? p.aq1.toFixed(2) : '-') + '万</div>';
+        html += '<div>Q2: ' + (p.aq2 > 0 ? p.aq2.toFixed(2) : '-') + '万</div>';
+        html += '<div>Q3: ' + (p.aq3 > 0 ? p.aq3.toFixed(2) : '-') + '万</div>';
+        html += '<div>Q4: ' + (p.aq4 > 0 ? p.aq4.toFixed(2) : '-') + '万</div>';
+        html += '</div></div></div>';
+        
+        if (projectMembers.length > 0) {
+            html += '<div class="detail-section">';
+            html += '<h5>👥 组织成员</h5>';
+            html += '<div class="member-tags">';
+            projectMembers.forEach(m => {
+                html += '<span class="member-tag">' + m + '</span>';
+            });
+            html += '</div></div>';
+        }
+        
+        if (p.client) {
+            html += '<div class="detail-section">';
+            html += '<h5>🏢 甲方信息</h5>';
+            html += '<div class="client-info">';
+            html += '<div class="detail-row-info"><span>单位</span><span>' + p.client + '</span></div>';
+            html += '<div class="detail-row-info"><span>对接人</span><span>' + (p.contact || '-') + '</span></div>';
+            html += '<div class="detail-row-info"><span>职位</span><span>' + (p.position || '-') + '</span></div>';
+            html += '<div class="detail-row-info"><span>电话</span><span>' + (p.phone || '-') + '</span></div>';
+            html += '</div></div>';
+        }
+        
+        html += '</div></td></tr>';
+    });
+    
+    container.innerHTML = html;
 }
+
 
 // 排序按钮点击
 function setProjectSort(type) {
@@ -3144,10 +3348,10 @@ function setProjectSort(type) {
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.sort === type);
     });
-    renderProjectCards();
+    renderProjectTable();
 }
 
-// renderProjectTable使用卡片模式渲染
+// renderProjectTable 使用表格模式渲染
 function renderProjectTable() {
     renderProjectCards();
 }
