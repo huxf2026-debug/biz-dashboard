@@ -3147,9 +3147,10 @@ function setProjectSort(type) {
     renderProjectCards();
 }
 
-// 重写renderProjectTable为卡片模式
-const originalRenderProjectTable = renderProjectTable;
-renderProjectTable = renderProjectCards;
+// renderProjectTable使用卡片模式渲染
+function renderProjectTable() {
+    renderProjectCards();
+}
 
         // 展开/收起详情
         function toggleDetail(name, index) {
