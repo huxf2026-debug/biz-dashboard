@@ -3103,7 +3103,7 @@ function renderProjectCards() {
                     <div class="card-header">
                         <div class="card-title">
                             <span class="project-name">${p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name}</span>
-                            ${docPath ? '<span class="doc-icon-btn" onclick="event.stopPropagation(); openDocModal('' + p.name.replace(/'/g, "\\'") + '')">📁</span>' : ''}
+                            ${docPath ? '<span class="doc-icon-btn" onclick="event.stopPropagation(); openDocModal(\'' + p.name.replace(/'/g, "\\'") + '\')">📁</span>' : ''}
                         </div>
                         <div class="card-expand-btn">${isExpanded ? '▲ 收起' : '▼ 详情'}</div>
                     </div>
@@ -3154,129 +3154,6 @@ function setProjectSort(type) {
 // 重写renderProjectTable为卡片模式
 const originalRenderProjectTable = renderProjectTable;
 renderProjectTable = renderProjectCards;
-            const tbody = document.getElementById('projectTableBody');
-            const searchTerm = document.getElementById('projectSearch').value.toLowerCase();
-
-            const filtered = PROJECTS.filter(p => {
-                const matchSearch = !searchTerm ||
-                    p.name.toLowerCase().includes(searchTerm) ||
-                    (p.client && p.client.toLowerCase().includes(searchTerm)) ||
-                    (p.type && p.type.toLowerCase().includes(searchTerm)) ||
-                    (p.leader && p.leader.toLowerCase().includes(searchTerm)) ||
-                    (p.field && p.field.toLowerCase().includes(searchTerm));
-                
-                const matchType = currentTypeFilter === '全部' || p.type === currentTypeFilter;
-                const person = getPerson(p.name);
-                const matchPerson = currentPersonFilter === '全部' || person === currentPersonFilter;
-                const field = getField(p.name);
-                const matchField = currentFieldFilter === '全部' || field === currentFieldFilter;
-                
-                return matchSearch && matchType && matchPerson && matchField;
-            });
-
-            tbody.innerHTML = filtered.map((p, index) => {
-                const person = getPerson(p.name);
-                const field = getField(p.name);
-                const year = p.year || getYear(p.name);
-                const isCancelled = p.phase === '撤销立项';
-                const isExpanded = expandedRows.has(p.name);
-                const docPath = getDocPath(p.name);
-                
-                // 获取项目文件
-                const projectFiles = getProjectFiles(p.name);
-                
-                // 获取项目成员
-                const projectMembers = p.members || [];
-
-                const detailRow = `
-                    <tr class="detail-row ${isExpanded ? 'show' : ''}" id="detail-${index}">
-                        <td colspan="19">
-                            <div class="detail-content">
-                                <div class="detail-item">
-                                    <div class="label">甲方单位</div>
-                                    <div class="value">${p.client || '-'}</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="label">负责人</div>
-                                    <div class="value">${person}</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="label">专业方向</div>
-                                    <div class="value">${field}</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="label">项目类型</div>
-                                    <div class="value">${p.type}</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="label">当前阶段</div>
-                                    <div class="value">${p.phase}</div>
-                                </div>
-                            </div>
-                            
-                            <!-- 项目文件区域 -->
-                            ${projectFiles.length > 0 ? `
-                                <div class="project-files">
-                                    <h4>📎 项目文件</h4>
-                                    <div class="file-list">
-                                        ${projectFiles.map(f => `
-                                            <a class="file-item" href="${f.url}" target="_blank" download>
-                                                <span class="file-icon">${getFileIcon(f.ext)}</span>
-                                                <span>${f.name}</span>
-                                                <span class="file-size">(${formatFileSize(f.size)})</span>
-                                            </a>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            ` : ''}
-                            
-                            <!-- 项目人员分配区域 -->
-                            <div class="project-members">
-                                <h4>
-                                    👥 参与人员
-                                    <button class="edit-members-btn" onclick="openMemberSelect('${p.name.replace(/'/g, "\\'")}')">编辑分配</button>
-                                </h4>
-                                <div class="member-tags">
-                                    ${projectMembers.length > 0 
-                                        ? projectMembers.map(m => `<span class="member-tag">${m}</span>`).join('')
-                                        : '<span class="no-members">暂无分配人员，点击编辑分配</span>'
-                                    }
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-
-                return `
-                    <tr class="${isCancelled ? 'cancelled' : ''}">
-                        <td><button class="expand-btn" onclick="toggleDetail('${p.name.replace(/'/g, "\\'")}', ${index})">${isExpanded ? '收起' : '详情'}</button></td>
-                        <td>${p.name}</td>
-                        <td>${docPath ? '<span class="doc-icon" onclick="openDocModal(\'' + p.name.replace(/'/g, "\\'") + '\')">📁</span>' : '-'}</td>
-                        <td>${year || '-'}</td>
-                        <td>${p.type}</td>
-                        <td><span class="person-tag" onclick="setProjectFilter('${person}', 'person')">${person}</span></td>
-                        <td><span class="field-tag" onclick="setProjectFilter('${field}', 'field')">${field}</span></td>
-                        <td>${p.contract > 0 ? p.contract.toFixed(2) : '-'}</td>
-                        <td>${getStatusBadge(p.phase)}</td>
-                        <td>${p.pending > 0 ? p.pending.toFixed(2) : '-'}</td>
-                        <td>${p.q1 > 0 ? p.q1.toFixed(2) : '-'}</td>
-                        <td>${p.q2 > 0 ? p.q2.toFixed(2) : '-'}</td>
-                        <td>${p.q3 > 0 ? p.q3.toFixed(2) : '-'}</td>
-                        <td>${p.q4 > 0 ? p.q4.toFixed(2) : "-"}</td>
-                        <td>${p.aq1 > 0 ? p.aq1.toFixed(2) : "-"}</td>
-                        <td>${p.aq2 > 0 ? p.aq2.toFixed(2) : "-"}</td>
-                        <td>${p.aq3 > 0 ? p.aq3.toFixed(2) : "-"}</td>
-                        <td>${p.aq4 > 0 ? p.aq4.toFixed(2) : "-"}</td>
-                        <td>${p.client || '-'}</td>
-                    </tr>
-                    ${detailRow}
-                `;
-            }).join('');
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="19" class="empty-state">没有找到匹配的项目</td></tr>';
-            }
-        }
 
         // 展开/收起详情
         function toggleDetail(name, index) {
