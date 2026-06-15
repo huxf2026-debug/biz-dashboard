@@ -971,6 +971,22 @@
             padding-top: 12px;
         }
 
+        .dept-group-section {
+            margin-bottom: 20px;
+        }
+        .dept-group-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        .dept-group-members {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 10px;
+        }
         .dept-member-projects h5 {
             font-size: 12px;
             color: var(--text-muted);
@@ -2515,7 +2531,7 @@ const TOTAL_2026_PLAN = 1478.64;
             const container = document.getElementById('deptMembersList');
             const allMembers = getAllTeamMembers();
             
-            // 统计每个人员参与的项目
+            // 统计每个人员参与的项目（自动从leader字段关联 + 手动分配的members）
             const memberProjectCount = {};
             const memberProjects = {};
             
@@ -2526,9 +2542,16 @@ const TOTAL_2026_PLAN = 1478.64;
             
             PROJECTS.forEach(p => {
                 if (p.phase === '撤销立项') return;
+                // 从leader字段自动关联
+                const leader = getPerson(p.name);
+                if (leader && memberProjectCount.hasOwnProperty(leader)) {
+                    memberProjectCount[leader]++;
+                    memberProjects[leader].push(p.name);
+                }
+                // 从手动分配的members关联
                 if (p.members && p.members.length > 0) {
                     p.members.forEach(memberName => {
-                        if (memberProjectCount.hasOwnProperty(memberName)) {
+                        if (memberName !== leader && memberProjectCount.hasOwnProperty(memberName)) {
                             memberProjectCount[memberName]++;
                             memberProjects[memberName].push(p.name);
                         }
@@ -2543,6 +2566,9 @@ const TOTAL_2026_PLAN = 1478.64;
             
             // 按角色分组显示
             for (const [groupName, members] of Object.entries(TEAM_DATA)) {
+                html += `<div class="dept-group-section">
+                    <div class="dept-group-title">${groupName}（${members.length}人）</div>
+                    <div class="dept-group-members">`;
                 members.forEach(m => {
                     const projectCount = memberProjectCount[m.name] || 0;
                     const projects = memberProjects[m.name] || [];
@@ -2559,12 +2585,13 @@ const TOTAL_2026_PLAN = 1478.64;
                             ${projects.length > 0 ? `
                                 <div class="dept-member-projects">
                                     <h5>参与的项目：</h5>
-                                    ${projects.map(pn => `<span class="dept-project-tag">${pn}</span>`).join('')}
+                                    ${projects.map(pn => `<span class="dept-project-tag">${pn.length > 15 ? pn.substring(0, 15) + '...' : pn}</span>`).join('')}
                                 </div>
                             ` : ''}
                         </div>
                     `;
                 });
+                html += `</div></div>`;
             }
             
             container.innerHTML = html || '<div class="empty-state">暂无人员数据</div>';
