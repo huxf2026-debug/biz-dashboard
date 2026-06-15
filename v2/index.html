@@ -2176,7 +2176,7 @@
         }
 
         // 2026年计划收款常量（硬编码）
-const TOTAL_2026_PLAN = 1429.99;
+const TOTAL_2026_PLAN = 1478.64;
         // 2026年实际收款从PROJECTS数据的aq1-aq4汇总
         function calcTotal2026Actual() {
             return PROJECTS.reduce((sum, p) => {
@@ -2187,18 +2187,18 @@ const TOTAL_2026_PLAN = 1429.99;
 
 // 2026年季度收款计划
         const PLAN_DATA = {
-            q1: { research: 0, develop: 0, service: 0 },
-            q2: { research: 79.84, develop: 39.3, service: 181.6 },
-            q3: { research: 68.5, develop: 0, service: 179.4 },
-            q4: { research: 143.8, develop: 698.05, service: 39.5 }
+            q1: { research: 0.0, develop: 0.0, service: 0.0 },
+            q2: { research: 63.79, develop: 39.3, service: 173.9 },
+            q3: { research: 92.0, develop: 0.0, service: 171.9 },
+            q4: { research: 107.0, develop: 791.25, service: 39.5 }
         };
 
         // 2026年实际收款（从飞书多维表格同步）
         const ACTUAL_DATA = {
-            q1: { research: 0, develop: 0, service: 0 },
-            q2: { research: 23.79, develop: 0, service: 21.8 },
-            q3: { research: 0, develop: 0, service: 0 },
-            q4: { research: 0, develop: 0, service: 0 }
+            q1: { research: 0.0, develop: 0.0, service: 0.0 },
+            q2: { research: 23.79, develop: 0.0, service: 21.8 },
+            q3: { research: 0.0, develop: 0.0, service: 0.0 },
+            q4: { research: 0.0, develop: 0.0, service: 0.0 }
         };
 
         // 项目数据（新增members字段用于人员分配）
@@ -2207,6 +2207,8 @@ const TOTAL_2026_PLAN = 1429.99;
             { name: '南山一张图实验室', type: '集成开发', contract: 900.0, year: 2026, phase: '初设编制', pending: 0.0, q1: 0, q2: 0, q3: 0, q4: 180.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '胡晓飞', field: '规划行业', members: [] },
             { name: '笋岗上盖数字孪生协同管控平台', type: '', contract: 800.0, year: 2026, phase: '前期跟进', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '', field: '', members: [] },
             { name: '监测视频算法训练服务', type: '服务', contract: 43.6, year: 2026, phase: '已结束', pending: 21.8, q1: 0, q2: 21.8, q3: 0, q4: 0, aq1: 0, aq2: 21.8, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '刘文娟', field: '智慧环境', members: [] },
+            { name: '深国际交流中心智慧海绵', type: '研究', contract: 65.0, year: 2026, phase: '待收尾款', pending: 54.0, q1: 0, q2: 0, q3: 27.0, q4: 27.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '华海科技', contact: '', position: '', phone: '', leader: '刘文娟', field: '智慧市政', members: [] },
+            { name: 'CSPON-业务系统需求设计', type: '服务', contract: 38.0, year: 2026, phase: '已立项未招采', pending: 38.0, q1: 0, q2: 0, q3: 38.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '易图资讯股份有限公司', contact: '张甲伟', position: '项目经理', phone: '13766837953', leader: '韩江雪', field: '咨询工作', members: [] },
             { name: '深圳市山海连城智慧导览系统建设（一期）', type: '集成开发', contract: 580.0, year: 2026, phase: '待收尾款', pending: 8.25, q1: 0, q2: 0, q3: 0, q4: 8.25, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '市规资局空信处', contact: '邓雅欣', position: '发展研究中心借调人员', phone: '13537850961', leader: '韩江雪', field: '城市/社区运营', members: [] },
             { name: '华富社区鸿蒙智慧党群建设项目', type: '集成开发', contract: 500.0, year: 2026, phase: '项目建议书编制', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '石名扬', field: '城市/社区运营', members: [] },
             { name: '南山圳智慧规划设计场景建设项目(云上二期，可研待定)', type: '集成开发', contract: 300.0, year: 2026, phase: '可研编制', pending: 204.0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市原世界科技有限公司', contact: '贾玉娟', position: '总经理', phone: '13544131329', leader: '韩江雪', field: 'AI智能化', members: [] },
