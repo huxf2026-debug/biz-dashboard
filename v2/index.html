@@ -2525,9 +2525,8 @@ const TOTAL_2026_PLAN = 1478.64;
             closeMemberSelect();
         }
 
-        // 渲染部门人员Tab
-// 渲染部门人员Tab（带图表）
-        function renderDeptMembers() {
+        // 渲染部门人员Tab（带图表），skipCharts=true时跳过图表初始化（用于页面加载时Tab不可见）
+        function renderDeptMembers(skipCharts = false) {
             const container = document.getElementById('deptMembersList');
             const allMembers = getAllTeamMembers();
             
@@ -2559,8 +2558,10 @@ const TOTAL_2026_PLAN = 1478.64;
                 }
             });
             
-            // 渲染图表
-            initMemberCharts(allMembers, memberProjectCount);
+            // 渲染图表（仅在Tab可见时初始化，避免隐藏容器导致ECharts尺寸为0）
+            if (!skipCharts) {
+                initMemberCharts(allMembers, memberProjectCount);
+            }
             
             let html = '';
             
@@ -2598,126 +2599,157 @@ const TOTAL_2026_PLAN = 1478.64;
         }
         
         // 初始化人员图表
+        // 安全获取或创建ECharts实例（避免重复初始化）
+        function getOrCreateChart(domId) {
+            const dom = document.getElementById(domId);
+            if (!dom) return null;
+            // 先销毁已有实例，避免尺寸缓存问题
+            const existing = echarts.getInstanceByDom(dom);
+            if (existing) {
+                existing.dispose();
+            }
+            return echarts.init(dom);
+        }
+        
         function initMemberCharts(allMembers, memberProjectCount) {
-            // 1. 饼图：人员构成分布（按角色）
-            const rolePieChart = echarts.init(document.getElementById('memberRolePieChart'));
-            const roleDistribution = {};
-            allMembers.forEach(m => {
-                roleDistribution[m.role] = (roleDistribution[m.role] || 0) + 1;
-            });
-            const pieOption = {
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{b}: {c}人 ({d}%)'
-                },
-                color: ['#00d4ff', '#ffa726', '#10b981', '#ef4444', '#9c27b0', '#ff9800'],
-                series: [{
-                    type: 'pie',
-                    radius: ['35%', '65%'],
-                    avoidLabelOverlap: true,
-                    itemStyle: {
-                        borderRadius: 8,
-                        borderColor: '#141938',
-                        borderWidth: 2
-                    },
-                    label: {
-                        color: '#a0aec0',
-                        formatter: '{b}: {c}人'
-                    },
-                    data: Object.entries(roleDistribution).map(([role, count]) => ({
-                        name: role,
-                        value: count
-                    }))
-                }]
-            };
-            rolePieChart.setOption(pieOption);
-            
-            // 2. 柱状图：各角色承担项目数量
-            const roleProjectChart = echarts.init(document.getElementById('roleProjectBarChart'));
-            const roleProjectData = {};
-            allMembers.forEach(m => {
-                const count = memberProjectCount[m.name] || 0;
-                roleProjectData[m.role] = (roleProjectData[m.role] || 0) + count;
-            });
-            const barOption1 = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'shadow' }
-                },
-                grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    data: Object.keys(roleProjectData),
-                    axisLabel: { color: '#a0aec0', rotate: 0 },
-                    axisLine: { lineStyle: { color: '#2d3748' } }
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: { color: '#a0aec0' },
-                    axisLine: { lineStyle: { color: '#2d3748' } },
-                    splitLine: { lineStyle: { color: '#2d3748' } }
-                },
-                series: [{
-                    type: 'bar',
-                    data: Object.values(roleProjectData),
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#00d4ff' },
-                            { offset: 1, color: '#0080ff' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
-                    },
-                    label: { show: true, color: '#fff', position: 'top' }
-                }]
-            };
-            roleProjectChart.setOption(barOption1);
-            
-            // 3. 柱状图：个人工作量排名
-            const personWorkloadChart = echarts.init(document.getElementById('personWorkloadBarChart'));
-            const personData = allMembers
-                .map(m => ({ name: m.name, count: memberProjectCount[m.name] || 0 }))
-                .sort((a, b) => b.count - a.count)
-                .slice(0, 10); // 取前10名
-            
-            const barOption2 = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'shadow' }
-                },
-                grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    data: personData.map(p => p.name),
-                    axisLabel: { color: '#a0aec0', rotate: 30 },
-                    axisLine: { lineStyle: { color: '#2d3748' } }
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: { color: '#a0aec0' },
-                    axisLine: { lineStyle: { color: '#2d3748' } },
-                    splitLine: { lineStyle: { color: '#2d3748' } }
-                },
-                series: [{
-                    type: 'bar',
-                    data: personData.map(p => p.count),
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#ffa726' },
-                            { offset: 1, color: '#ff9800' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
-                    },
-                    label: { show: true, color: '#fff', position: 'top' }
-                }]
-            };
-            personWorkloadChart.setOption(barOption2);
-            
-            // 响应窗口变化
-            window.addEventListener('resize', () => {
-                rolePieChart.resize();
-                roleProjectChart.resize();
-                personWorkloadChart.resize();
-            });
+            // 使用setTimeout确保容器已可见并完成布局后再初始化图表
+            setTimeout(() => {
+                try {
+                    // 1. 饼图：人员构成分布（按角色）
+                    const rolePieChart = getOrCreateChart('memberRolePieChart');
+                    if (!rolePieChart) return;
+                    const roleDistribution = {};
+                    allMembers.forEach(m => {
+                        roleDistribution[m.role] = (roleDistribution[m.role] || 0) + 1;
+                    });
+                    const pieOption = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{b}: {c}人 ({d}%)'
+                        },
+                        color: ['#00d4ff', '#ffa726', '#10b981', '#ef4444', '#9c27b0', '#ff9800'],
+                        series: [{
+                            type: 'pie',
+                            radius: ['35%', '65%'],
+                            avoidLabelOverlap: true,
+                            itemStyle: {
+                                borderRadius: 8,
+                                borderColor: '#141938',
+                                borderWidth: 2
+                            },
+                            label: {
+                                color: '#a0aec0',
+                                formatter: '{b}: {c}人'
+                            },
+                            data: Object.entries(roleDistribution).map(([role, count]) => ({
+                                name: role,
+                                value: count
+                            }))
+                        }]
+                    };
+                    rolePieChart.setOption(pieOption);
+                    rolePieChart.resize();
+                    
+                    // 2. 柱状图：各角色承担项目数量
+                    const roleProjectChart = getOrCreateChart('roleProjectBarChart');
+                    if (!roleProjectChart) return;
+                    const roleProjectData = {};
+                    allMembers.forEach(m => {
+                        const count = memberProjectCount[m.name] || 0;
+                        roleProjectData[m.role] = (roleProjectData[m.role] || 0) + count;
+                    });
+                    const barOption1 = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'shadow' }
+                        },
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+                        xAxis: {
+                            type: 'category',
+                            data: Object.keys(roleProjectData),
+                            axisLabel: { color: '#a0aec0', rotate: 0 },
+                            axisLine: { lineStyle: { color: '#2d3748' } }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLabel: { color: '#a0aec0' },
+                            axisLine: { lineStyle: { color: '#2d3748' } },
+                            splitLine: { lineStyle: { color: '#2d3748' } }
+                        },
+                        series: [{
+                            type: 'bar',
+                            data: Object.values(roleProjectData),
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#00d4ff' },
+                                    { offset: 1, color: '#0080ff' }
+                                ]),
+                                borderRadius: [4, 4, 0, 0]
+                            },
+                            label: { show: true, color: '#fff', position: 'top' }
+                        }]
+                    };
+                    roleProjectChart.setOption(barOption1);
+                    roleProjectChart.resize();
+                    
+                    // 3. 柱状图：个人工作量排名
+                    const personWorkloadChart = getOrCreateChart('personWorkloadBarChart');
+                    if (!personWorkloadChart) return;
+                    const personData = allMembers
+                        .map(m => ({ name: m.name, count: memberProjectCount[m.name] || 0 }))
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 10);
+                    
+                    const barOption2 = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'shadow' }
+                        },
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
+                        xAxis: {
+                            type: 'category',
+                            data: personData.map(p => p.name),
+                            axisLabel: { color: '#a0aec0', rotate: 30 },
+                            axisLine: { lineStyle: { color: '#2d3748' } }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLabel: { color: '#a0aec0' },
+                            axisLine: { lineStyle: { color: '#2d3748' } },
+                            splitLine: { lineStyle: { color: '#2d3748' } }
+                        },
+                        series: [{
+                            type: 'bar',
+                            data: personData.map(p => p.count),
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#ffa726' },
+                                    { offset: 1, color: '#ff9800' }
+                                ]),
+                                borderRadius: [4, 4, 0, 0]
+                            },
+                            label: { show: true, color: '#fff', position: 'top' }
+                        }]
+                    };
+                    personWorkloadChart.setOption(barOption2);
+                    personWorkloadChart.resize();
+                    
+                    // 响应窗口变化（只绑定一次）
+                    if (!window._memberChartsResizeBound) {
+                        window._memberChartsResizeBound = true;
+                        window.addEventListener('resize', () => {
+                            const c1 = echarts.getInstanceByDom(document.getElementById('memberRolePieChart'));
+                            const c2 = echarts.getInstanceByDom(document.getElementById('roleProjectBarChart'));
+                            const c3 = echarts.getInstanceByDom(document.getElementById('personWorkloadBarChart'));
+                            if (c1) c1.resize();
+                            if (c2) c2.resize();
+                            if (c3) c3.resize();
+                        });
+                    }
+                } catch(e) {
+                    console.error('初始化人员图表失败:', e);
+                }
+            }, 100); // 延迟100ms确保容器已完成布局
         }
 
         // 格式化文件大小
@@ -2776,7 +2808,7 @@ const TOTAL_2026_PLAN = 1478.64;
             // 渲染表格
             renderProjectTable();
             renderClientTable();
-            renderDeptMembers();
+            renderDeptMembers(true); // 页面加载时Tab不可见，跳过图表初始化
         }
 
         function calculateStats() {
