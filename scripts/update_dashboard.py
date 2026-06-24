@@ -30,22 +30,27 @@ PERSON_TABLE = 'tblPa5ADkNYsDiEv'
 INDEX_PATH = '/home/coze/biz-dashboard/index.html'
 SNAPSHOT_PATH = '/home/coze/biz-dashboard/scripts/last_data_snapshot.json'
 
-def parse_md_table(filepath):
+def parse_md_table(filepath, header_keyword=None):
     with open(filepath, 'r', encoding='utf-8') as f:
         text = f.read()
     lines = [l.strip() for l in text.split('\n') if l.strip()]
     for i, line in enumerate(lines):
-        if line.startswith('|') and '项目名称' in line:
-            headers = [h.strip() for h in line.split('|') if h.strip()]
-            records = []
-            for ln in lines[i+2:]:
-                if not ln.startswith('|'):
-                    continue
-                cells = [c.strip() for c in ln.split('|')][1:-1]
-                if len(cells) < len(headers):
-                    cells.extend([''] * (len(headers) - len(cells)))
-                records.append(dict(zip(headers, cells)))
-            return records
+        if not line.startswith('|'):
+            continue
+        if header_keyword and header_keyword not in line:
+            continue
+        if not header_keyword and '项目名称' not in line:
+            continue
+        headers = [h.strip() for h in line.split('|') if h.strip()]
+        records = []
+        for ln in lines[i+2:]:
+            if not ln.startswith('|'):
+                continue
+            cells = [c.strip() for c in ln.split('|')][1:-1]
+            if len(cells) < len(headers):
+                cells.extend([''] * (len(headers) - len(cells)))
+            records.append(dict(zip(headers, cells)))
+        return records
     return []
 
 def to_float(v):
@@ -229,7 +234,7 @@ def main():
     
     project_records = parse_md_table('/tmp/project_raw.txt')
     finance_records = parse_md_table('/tmp/finance_raw.txt')
-    person_records = parse_md_table('/tmp/person_raw.txt')
+    person_records = parse_md_table('/tmp/person_raw.txt', header_keyword='姓名')
     print(f"  项目进度表: {len(project_records)} 条")
     print(f"  财务跟踪表: {len(finance_records)} 条")
     
