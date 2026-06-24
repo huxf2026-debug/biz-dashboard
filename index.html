@@ -1118,7 +1118,7 @@
                 <div class="label">合同总额</div>
                 <div class="value gold stat-animate" id="totalContract">0</div>
                 <span class="unit">万元</span>
-                <div class="year-breakdown" id="contractYearBreakdown" style="font-size:11px;color:#8899aa;margin-top:4px;line-height:1.6"></div>
+
             </div>
             <div class="overview-card">
                 <div class="label">待收款总额</div>
@@ -1764,10 +1764,7 @@ const FILE_INDEX = {
 
             // 动画数字
             animateNumber('totalContract', stats.total_contract);
-            // 更新合同额分年明细
-            const ys = stats.year_stats;
-            const ybHtml = Object.keys(ys).sort().map(y => y + ': ' + ys[y].toFixed(1) + '万').join(' &nbsp;|&nbsp; ');
-            document.getElementById('contractYearBreakdown').innerHTML = ybHtml;
+
             animateNumber('totalPending', stats.total_pending);
             animateNumber('totalPlan', stats.total_2026_plan);
             animateNumber('totalActual', stats.total_2026_actual);
