@@ -26,6 +26,7 @@ import datetime
 BASE_TOKEN = 'DbLybnS1Fa67UOsWkJEcurfjnJb'
 PROJECT_TABLE = 'tblyNo6TXfcTUcen'
 FINANCE_TABLE = 'tblTjTvpRIpqJGW6'
+PERSON_TABLE = 'tblPa5ADkNYsDiEv'
 INDEX_PATH = '/home/coze/biz-dashboard/index.html'
 SNAPSHOT_PATH = '/home/coze/biz-dashboard/scripts/last_data_snapshot.json'
 
@@ -219,9 +220,16 @@ def main():
         stdout=open('/tmp/finance_raw.txt', 'w'),
         stderr=subprocess.DEVNULL
     )
+    subprocess.run(
+        ['lark-cli', 'base', '+record-list', '--base-token', BASE_TOKEN,
+         '--table-id', PERSON_TABLE, '--limit', '200'],
+        stdout=open('/tmp/person_raw.txt', 'w'),
+        stderr=subprocess.DEVNULL
+    )
     
     project_records = parse_md_table('/tmp/project_raw.txt')
     finance_records = parse_md_table('/tmp/finance_raw.txt')
+    person_records = parse_md_table('/tmp/person_raw.txt')
     print(f"  项目进度表: {len(project_records)} 条")
     print(f"  财务跟踪表: {len(finance_records)} 条")
     
