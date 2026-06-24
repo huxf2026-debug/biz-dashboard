@@ -273,7 +273,7 @@ def main():
         for frec in finance_by_name.get(name, []):
             contract += to_float(frec.get('合同额(万元)'))
             pending += to_float(frec.get('待收款(万元)'))
-            y = frec.get('年份', '').strip()
+            y = frec.get('项目签订年份', '').strip()
             if y: year = y
             q1p += to_float(frec.get('Q1计划收款'))
             q2p += to_float(frec.get('Q2计划收款'))
@@ -324,7 +324,7 @@ def main():
                 break
         
         dk = 'research' if proj_type == '研究' else 'service' if proj_type == '服务' else 'develop' if proj_type in ['集成开发','开发'] else 'research'
-        year = frec.get('年份', '').strip()
+        year = frec.get('项目签订年份', '').strip()
         
         for qi, qkey in enumerate(['q1','q2','q3','q4']):
             plan_val = to_float(frec.get(f'Q{qi+1}计划收款'))
