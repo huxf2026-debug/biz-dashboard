@@ -429,6 +429,33 @@ def main():
     clients_js = 'const CLIENTS = [\n' + ',\n'.join(ci) + '\n];'
     content = re.sub(r'const CLIENTS\s*=\s*\[[\s\S]*?\];', clients_js, content)
     
+    # TEAM_DATA JS (auto-sync from person table)
+    from collections import OrderedDict
+    team_groups = OrderedDict()
+    role_order = ['部门主任', '部门副主任', '技术副主任', '技术总监', '项目经理', '产品', '数据', '开发']
+    for pr in person_records:
+        pname = pr.get('姓名', '').strip()
+        prole = parse_json_field(pr.get('职责', ''))
+        if not pname or not prole:
+            continue
+        if prole not in team_groups:
+            team_groups[prole] = []
+        team_groups[prole].append((pname, prole))
+    
+    team_items = []
+    for role in role_order:
+        if role in team_groups:
+            members = team_groups[role]
+            member_strs = ',\n'.join([f"                {{ name: '{n}', role: '{r}' }}" for n, r in members])
+            team_items.append(f"            '{role}': [\n{member_strs}\n            ]")
+    for role, members in team_groups.items():
+        if role not in role_order:
+            member_strs = ',\n'.join([f"                {{ name: '{n}', role: '{r}' }}" for n, r in members])
+            team_items.append(f"            '{role}': [\n{member_strs}\n            ]")
+    
+    team_js = 'const TEAM_DATA = {\n' + ',\n'.join(team_items) + '\n        };'
+    content = re.sub(r'const TEAM_DATA\s*=\s*\{[\s\S]*?\};', team_js, content)
+    
     # FILE_INDEX JS
     file_index = {}
     projects_dir = '/home/coze/projects'
