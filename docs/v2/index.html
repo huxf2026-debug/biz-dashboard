@@ -1484,12 +1484,12 @@
                 <span class="unit">万元</span>
             </div>
             <div class="overview-card">
-                <div class="label">2026计划收款</div>
+                <div class="label">计划收款</div>
                 <div class="value blue stat-animate" id="totalPlan">0</div>
                 <span class="unit">万元</span>
             </div>
             <div class="overview-card">
-                <div class="label">2026实际收款</div>
+                <div class="label">实际收款</div>
                 <div class="value green stat-animate" id="totalActual">0</div>
                 <span class="unit">万元</span>
             </div>
@@ -1915,21 +1915,52 @@
             return members;
         }
 
-        // 2026年季度收款计划
-        const PLAN_DATA = {
-            q1: { research: 10.0, develop: 80.0, service: 30.0 },
-            q2: { research: 40.0, develop: 150.0, service: 200.0 },
-            q3: { research: 35.0, develop: 120.0, service: 80.0 },
-            q4: { research: 30.0, develop: 80.0, service: 150.0 }
-        };
+        // 项目类型到分类键的映射
+        const TYPE_MAP = { '研究': 'research', '集成开发': 'develop', '服务': 'service' };
 
-        // 2026年实际收款（目前Q1有收款记录）
-        const ACTUAL_DATA = {
-            q1: { research: 0, develop: 23.79, service: 0 },
-            q2: { research: 0, develop: 0, service: 0 },
-            q3: { research: 0, develop: 0, service: 0 },
-            q4: { research: 0, develop: 0, service: 0 }
-        };
+        // 从PROJECTS数组动态计算季度收款计划数据（统计所有项目，不分年限）
+        function computePlanData() {
+            const data = { q1: { research: 0, develop: 0, service: 0 }, q2: { research: 0, develop: 0, service: 0 }, q3: { research: 0, develop: 0, service: 0 }, q4: { research: 0, develop: 0, service: 0 } };
+            PROJECTS.forEach(p => {
+                if (p.phase === '已验收' || p.phase === '已结题' || p.phase === '已撤销立项') return;
+                const typeKey = TYPE_MAP[p.type];
+                if (!typeKey) return;
+                data.q1[typeKey] += (p.q1 || 0);
+                data.q2[typeKey] += (p.q2 || 0);
+                data.q3[typeKey] += (p.q3 || 0);
+                data.q4[typeKey] += (p.q4 || 0);
+            });
+            ['q1','q2','q3','q4'].forEach(q => {
+                ['research','develop','service'].forEach(t => {
+                    data[q][t] = Math.round(data[q][t] * 100) / 100;
+                });
+            });
+            return data;
+        }
+
+        // 从PROJECTS数组动态计算实际收款数据（统计所有项目，不分年限）
+        function computeActualData() {
+            const data = { q1: { research: 0, develop: 0, service: 0 }, q2: { research: 0, develop: 0, service: 0 }, q3: { research: 0, develop: 0, service: 0 }, q4: { research: 0, develop: 0, service: 0 } };
+            PROJECTS.forEach(p => {
+                if (p.phase === '已验收' || p.phase === '已结题' || p.phase === '已撤销立项') return;
+                const typeKey = TYPE_MAP[p.type];
+                if (!typeKey) return;
+                data.q1[typeKey] += (p.aq1 || 0);
+                data.q2[typeKey] += (p.aq2 || 0);
+                data.q3[typeKey] += (p.aq3 || 0);
+                data.q4[typeKey] += (p.aq4 || 0);
+            });
+            ['q1','q2','q3','q4'].forEach(q => {
+                ['research','develop','service'].forEach(t => {
+                    data[q][t] = Math.round(data[q][t] * 100) / 100;
+                });
+            });
+            return data;
+        }
+
+        // 全局变量，在initDashboard中动态计算
+        let PLAN_DATA = {};
+        let ACTUAL_DATA = {};
 
         // 项目数据（新增members字段用于人员分配）
         let PROJECTS = [
@@ -2251,7 +2282,7 @@
             });
             
             PROJECTS.forEach(p => {
-                if (p.phase === '撤销立项') return;
+                if (p.phase === '已撤销立项') return;
                 if (p.members && p.members.length > 0) {
                     p.members.forEach(memberName => {
                         if (memberProjectCount.hasOwnProperty(memberName)) {
@@ -2320,9 +2351,13 @@
         function initDashboard() {
             // 加载保存的人员分配
             loadMemberAssignments();
-            
+
             // 更新时间
-            document.getElementById('updateTime').textContent = '数据更新时间：2026-06-03';
+            document.getElementById('updateTime').textContent = '数据更新时间：2026-06-29';
+
+            // 动态计算计划收款和实际收款数据（统计所有项目，不分年限）
+            PLAN_DATA = computePlanData();
+            ACTUAL_DATA = computeActualData();
 
             // 计算统计数据
             const stats = calculateStats();
@@ -2330,8 +2365,8 @@
             // 动画数字
             animateNumber('totalContract', stats.total_contract);
             animateNumber('totalPending', stats.total_pending);
-            animateNumber('totalPlan', stats.total_2026_plan);
-            animateNumber('totalActual', stats.total_2026_actual);
+            animateNumber('totalPlan', stats.total_plan);
+            animateNumber('totalActual', stats.total_actual);
 
             // 更新项目概览统计卡
             updateProjectSummary(stats);
@@ -2355,7 +2390,7 @@
         function calculateStats() {
             let total_contract = 0;
             let total_pending = 0;
-            let total_2026_plan = 0;
+            let total_plan = 0;
             let active_projects = 0;
             const year_stats = { 2024: 0, 2025: 0, 2026: 0 };
             const type_stats = { '研究': 0, '集成开发': 0, '服务': 0 };
@@ -2363,7 +2398,7 @@
 
             PROJECTS.forEach(p => {
                 const year = p.year || getYear(p.name);
-                const isCancelled = p.phase === '撤销立项';
+                const isCancelled = p.phase === '已撤销立项';
 
                 if (!isCancelled && p.contract > 0) {
                     total_contract += p.contract;
@@ -2375,23 +2410,23 @@
 
                     type_stats[p.type] = (type_stats[p.type] || 0) + p.contract;
 
-                    if (p.phase !== '撤销立项') {
+                    if (p.phase !== '已撤销立项') {
                         status_stats[p.phase] = (status_stats[p.phase] || 0) + 1;
                     }
                 }
 
-                if (!isCancelled && p.phase !== '撤销立项') {
+                if (!isCancelled && p.phase !== '已撤销立项') {
                     active_projects++;
                 }
             });
 
-            total_2026_plan = Object.values(PLAN_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
+            total_plan = Object.values(PLAN_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
 
-            let total_2026_actual = Object.values(ACTUAL_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
+            let total_actual = Object.values(ACTUAL_DATA).reduce((sum, q) => sum + q.research + q.develop + q.service, 0);
 
             const field_stats = {};
             PROJECTS.forEach(p => {
-                if (p.phase === '撤销立项') return;
+                if (p.phase === '已撤销立项') return;
                 const field = getField(p.name);
                 if (field && field !== '-') {
                     field_stats[field] = (field_stats[field] || 0) + 1;
@@ -2401,8 +2436,8 @@
             return {
                 total_contract,
                 total_pending,
-                total_2026_plan,
-                total_2026_actual,
+                total_plan,
+                total_actual,
                 active_projects,
                 year_stats,
                 type_stats,
@@ -2435,7 +2470,7 @@
         }
 
         function updateProjectSummary(stats) {
-            const totalProjects = PROJECTS.filter(p => p.phase !== '撤销立项').length;
+            const totalProjects = PROJECTS.filter(p => p.phase !== '已撤销立项').length;
             document.getElementById('totalProjectCount').textContent = totalProjects;
             document.getElementById('activeProjectCount').textContent = stats.active_projects;
 
@@ -2725,7 +2760,7 @@
                 '已立项未招采': '#f59e0b',
                 '可研编制': '#8b5cf6',
                 '项目建议书编制': '#ec4899',
-                '撤销立项': '#ef4444'
+                '已撤销立项': '#ef4444'
             };
 
             const stats = calculateStats();
@@ -2829,7 +2864,7 @@
                 const person = getPerson(p.name);
                 const field = getField(p.name);
                 const year = p.year || getYear(p.name);
-                const isCancelled = p.phase === '撤销立项';
+                const isCancelled = p.phase === '已撤销立项';
                 const isExpanded = expandedRows.has(p.name);
                 const docPath = getDocPath(p.name);
                 
@@ -3082,8 +3117,8 @@
             html += '<div class="pc-name">' + p.name + '</div>';
             html += '<div class="pc-row"><span>合同额</span><span class="pc-val">' + p.contract + '万</span></div>';
             html += '<div class="pc-row"><span>待收款</span><span class="pc-val" style="color:#ffa726">' + p.pending + '万</span></div>';
-            if (planTotal > 0) html += '<div class="pc-row"><span>2026计划</span><span class="pc-val">' + planTotal.toFixed(2) + '万</span></div>';
-            if (actualTotal > 0) html += '<div class="pc-row"><span>2026实际</span><span class="pc-val" style="color:#10b981">' + actualTotal.toFixed(2) + '万</span></div>';
+            if (planTotal > 0) html += '<div class="pc-row"><span>计划收款</span><span class="pc-val">' + planTotal.toFixed(2) + '万</span></div>';
+            if (actualTotal > 0) html += '<div class="pc-row"><span>实际收款</span><span class="pc-val" style="color:#10b981">' + actualTotal.toFixed(2) + '万</span></div>';
             html += '<div class="pc-row"><span>负责人</span><span class="pc-val">' + person + '</span></div>';
             if (field !== '-') html += '<div class="pc-row"><span>专业方向</span><span class="pc-val">' + field + '</span></div>';
             html += '<div>' + getTypeTag(p.type) + ' ' + getPhaseTag(p.phase) + '</div>';
@@ -3212,7 +3247,7 @@
 
         // 主查询处理
         function processAiQuery(q) {
-            const activeProjects = PROJECTS.filter(p => p.phase !== '撤销立项');
+            const activeProjects = PROJECTS.filter(p => p.phase !== '已撤销立项');
             const nonZeroProjects = activeProjects.filter(p => p.contract > 0);
             const intents = detectIntent(q);
             
@@ -3239,7 +3274,7 @@
                     return actual > 0;
                 });
                 if (withActual.length === 0) {
-                    return '目前2026年各项目暂无实际收款记录。';
+                    return '目前各项目暂无实际收款记录。';
                 }
                 let html = '已有实际收款的项目共 <span class="highlight">' + withActual.length + '</span> 个：';
                 withActual.forEach(p => { html += projectCard(p); });
@@ -3251,7 +3286,7 @@
                 const totalPlan = Object.values(PLAN_DATA).reduce((s,qq) => s + qq.research + qq.develop + qq.service, 0);
                 const totalActual = Object.values(ACTUAL_DATA).reduce((s,qq) => s + qq.research + qq.develop + qq.service, 0);
                 const pct = totalPlan > 0 ? (totalActual / totalPlan * 100).toFixed(1) : 0;
-                let html = '📊 <strong>2026年收款进度</strong><br/><br/>';
+                let html = '📊 <strong>收款进度（全部项目）</strong><br/><br/>';
                 html += '计划收款：<span class="highlight">' + totalPlan.toFixed(2) + '万</span><br/>';
                 html += '实际收款：<span class="highlight" style="color:#10b981">' + totalActual.toFixed(2) + '万</span><br/>';
                 html += '完成率：<span class="highlight">' + pct + '%</span><br/><br/>';
@@ -3462,7 +3497,7 @@
             html += '• "待收款最多的项目" — 查看待收款排名<br/>';
             html += '• "已收款的项目" — 查看实际收款<br/>';
             html += '• "甲方联系方式" — 查看客户通讯录<br/>';
-            html += '• "2026收款进度" — 查看计划vs实际<br/>';
+            html += '• "收款进度" — 查看计划vs实际<br/>';
             html += '• "智慧环境方向的项目" — 按专业方向查询<br/>';
             html += '• "胡晓飞负责的项目" — 按负责人查询<br/>';
             html += '• "总体概览" — 业务数据总览';
@@ -3494,7 +3529,7 @@
             <button class="ai-quick-btn" onclick="aiQuickAsk('最近收到款的项目')">已收款项目</button>
             <button class="ai-quick-btn" onclick="aiQuickAsk('各专业方向项目分布')">专业分布</button>
             <button class="ai-quick-btn" onclick="aiQuickAsk('有哪些甲方联系方式')">甲方通讯录</button>
-            <button class="ai-quick-btn" onclick="aiQuickAsk('2026年收款进度')">收款进度</button>
+            <button class="ai-quick-btn" onclick="aiQuickAsk('收款进度')">收款进度</button>
         </div>
         <div class="ai-panel-input">
             <input type="text" id="aiInput" placeholder="输入你的问题..." onkeydown="if(event.key==='Enter')sendAiMsg()">
