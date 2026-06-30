@@ -394,6 +394,7 @@ def main():
         sp = p['position'].replace("'", "\\'")
         sph = p['phone'].replace("'", "\\'")
         sf = p['field'].replace("'", "\\'")
+        snp = p['next_plan'].replace("'", "\\'") if p.get('next_plan') else ''
         yv = p['year'] if str(p['year']).isdigit() else f"'{p['year']}'"
         items.append(
             f"    {{ name: '{sn}', type: '{p['type']}', contract: {p['contract']}, "
@@ -401,7 +402,7 @@ def main():
             f"q1: {p['q1']}, q2: {p['q2']}, q3: {p['q3']}, q4: {p['q4']}, "
             f"aq1: {p['aq1']}, aq2: {p['aq2']}, aq3: {p['aq3']}, aq4: {p['aq4']}, "
             f"client: '{sc}', contact: '{sco}', position: '{sp}', "
-            f"phone: '{sph}', leader: '{p['leader']}', field: '{sf}' }}"
+            f"phone: '{sph}', leader: '{p['leader']}', field: '{sf}', next_plan: '{snp}' }}"
         )
     projects_js = 'const PROJECTS = [\n' + ',\n'.join(items) + '\n    ];'
     content = re.sub(r'const PROJECTS\s*=\s*\[[\s\S]*?\];', projects_js, content)
