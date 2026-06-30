@@ -277,6 +277,7 @@ def main():
         phase = parse_json_field(prec.get('当前阶段', ''))
         leader = prec.get('负责人', '')
         field = parse_json_field(prec.get('专业方向', ''))
+        next_plan = parse_json_field(prec.get('下一步计划', ''))
         
         contract = 0; pending = 0; year = None
         client = ''; contact = ''; position = ''; phone = ''
@@ -311,7 +312,7 @@ def main():
             'aq1': q1a, 'aq2': q2a, 'aq3': q3a, 'aq4': q4a,
             'client': client, 'contact': contact,
             'position': position, 'phone': phone,
-            'leader': leader, 'field': field,
+            'leader': leader, 'field': field, 'next_plan': next_plan,
         })
     
     projects.sort(key=lambda x: x['contract'], reverse=True)
