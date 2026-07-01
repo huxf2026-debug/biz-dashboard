@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-30T18:30:51.558963",
+  "timestamp": "2026-07-01T18:31:16.564900",
   "plan_data": {
     "q1": {
       "research": 0,
@@ -17,7 +17,7 @@
       "develop": 0.0
     },
     "q4": {
-      "research": 183.3,
+      "research": 187.20000000000002,
       "service": 0,
       "develop": 698.05
     }
@@ -44,7 +44,7 @@
       "develop": 0.0
     }
   },
-  "project_count": 37,
-  "total_contract": 7083.69,
-  "total_pending": 3253.72
+  "project_count": 38,
+  "total_contract": 7090.19,
+  "total_pending": 3260.22
 }
