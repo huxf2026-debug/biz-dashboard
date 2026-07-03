@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-02T18:30:28.711954",
+  "timestamp": "2026-07-03T14:49:06.544800",
   "plan_data": {
     "q1": {
       "research": 0,
@@ -7,17 +7,17 @@
       "develop": 0.0
     },
     "q2": {
-      "research": 261.44,
+      "research": 292.6,
       "service": 0,
       "develop": 39.3
     },
     "q3": {
-      "research": 247.9,
+      "research": 292.663,
       "service": 0,
       "develop": 0.0
     },
     "q4": {
-      "research": 187.20000000000002,
+      "research": 205.9,
       "service": 0,
       "develop": 698.05
     }
@@ -29,7 +29,7 @@
       "develop": 0.0
     },
     "q2": {
-      "research": 96.64,
+      "research": 141.403,
       "service": 0,
       "develop": 0.0
     },
@@ -45,6 +45,6 @@
     }
   },
   "project_count": 38,
-  "total_contract": 7090.19,
-  "total_pending": 3260.22
+  "total_contract": 7590.19,
+  "total_pending": 4780.87
 }

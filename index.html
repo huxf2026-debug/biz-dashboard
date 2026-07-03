@@ -1264,6 +1264,14 @@
                         <button class="filter-btn" data-filter="专业-规划行业" onclick="setProjectFilter('规划行业', 'field')">规划行业</button>
                     </div>
                 </div>
+                <div class="filter-row" style="margin-top: 12px;">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="年份-全部" onclick="setProjectFilter('全部', 'year')">年份: 全部</button>
+                        <button class="filter-btn" data-filter="年份-2026" onclick="setProjectFilter('2026', 'year')">2026</button>
+                        <button class="filter-btn" data-filter="年份-2025" onclick="setProjectFilter('2025', 'year')">2025</button>
+                        <button class="filter-btn" data-filter="年份-2024" onclick="setProjectFilter('2024', 'year')">2024</button>
+                    </div>
+                </div>
             </div>
 
             <div class="table-section">
@@ -1593,7 +1601,7 @@ const FILE_INDEX = {
         // 项目数据
                                 const PROJECTS = [
     { name: '西丽高铁新城全过程一体化协同BIM/CIM应用', type: '集成开发', contract: 1600.0, year: 2026, phase: '可研编制', pending: 1600.0, q1: 0, q2: 0, q3: 0, q4: 500.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '南山区政务服务和数据管理局、南山区发展和改革局', contact: '黄吉娜', position: '科长', phone: '15521236253', leader: '韩江雪', field: '工程协同', next_plan: '可研成果推进到政数局发展规划科，该科室审查无意见后推进专家评审' },
-    { name: '南山一张图实验室', type: '集成开发', contract: 900.0, year: 2026, phase: '初设编制', pending: 0.0, q1: 0, q2: 0, q3: 0, q4: 180.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '胡晓飞', field: '规划行业', next_plan: '' },
+    { name: '南山一张图实验室', type: '集成开发', contract: 1400.0, year: 2026, phase: '初设编制', pending: 1400.0, q1: 0, q2: 0, q3: 0, q4: 180.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '胡晓飞', field: '规划行业', next_plan: '' },
     { name: '笋岗上盖数字孪生协同管控平台', type: '', contract: 800.0, year: 2026, phase: '前期跟进', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '', field: '', next_plan: '' },
     { name: '深圳市山海连城智慧导览系统建设（一期）', type: '集成开发', contract: 580.0, year: 2026, phase: '待收尾款', pending: 8.25, q1: 0, q2: 0, q3: 0, q4: 8.25, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '市规资局空信处', contact: '邓雅欣', position: '发展研究中心借调人员', phone: '13537850961', leader: '韩江雪', field: '城市/社区运营', next_plan: '' },
     { name: '华富社区鸿蒙智慧党群建设项目', type: '集成开发', contract: 500.0, year: 2026, phase: '项目建议书编制', pending: 0, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '石名扬', field: '城市/社区运营', next_plan: '' },
@@ -1605,10 +1613,10 @@ const FILE_INDEX = {
     { name: '蠡湖未来城智慧城市规划与CIM平台', type: '集成开发', contract: 179.3, year: 2024, phase: '待收尾款', pending: 53.79, q1: 0, q2: 0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '蠡湖未来城建设指挥部', contact: '刘恪', position: '信息化负责人', phone: '微信号：liukeufo', leader: '袁誉菲', field: '工程协同', next_plan: '' },
     { name: '住建局BIM项目', type: '咨询研究', contract: 150.0, year: 2026, phase: '已立项未招采', pending: 150.0, q1: 0, q2: 10.0, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深城交', contact: '陈炜', position: '项目经理', phone: '18859105786', leader: '胡晓飞', field: '工程协同', next_plan: '' },
     { name: '生态环境监测中心站2026年定点项目', type: '咨询研究', contract: 130.0, year: 2026, phase: '已立项未招采', pending: 70.0, q1: 0, q2: 0, q3: 35.0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市环境监测中心站', contact: '孙天乐', position: '大气室主任', phone: '13632780829', leader: '袁富林', field: '智慧环境', next_plan: '' },
-    { name: '碳污协同溯源及空气质量预报支持服务', type: '技术服务', contract: 128.65, year: 2026, phase: '进行中', pending: 70.0, q1: 0, q2: 0, q3: 35.0, q4: 0, aq1: 0, aq2: 35.0, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '袁富林', field: '智慧环境', next_plan: '' },
-    { name: '成都洪水淹没三维场景构建', type: '技术服务', contract: 119.0, year: 2026, phase: '进行中', pending: 57.0, q1: 0, q2: 28.5, q3: 0, q4: 17.1, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '丰图科技', contact: '陈子峰', position: '招采负责人', phone: '19537538844', leader: '欧阳玲', field: '工程协同', next_plan: '' },
+    { name: '碳污协同溯源及空气质量预报支持服务', type: '技术服务', contract: 128.65, year: 2026, phase: '进行中', pending: 128.65, q1: 0, q2: 0, q3: 79.763, q4: 0, aq1: 0, aq2: 79.763, aq3: 0, aq4: 0, client: '', contact: '', position: '', phone: '', leader: '袁富林', field: '智慧环境', next_plan: '' },
+    { name: '成都洪水淹没三维场景构建', type: '技术服务', contract: 119.0, year: 2026, phase: '进行中', pending: 119.0, q1: 0, q2: 59.66, q3: 0, q4: 35.8, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '丰图科技', contact: '陈子峰', position: '招采负责人', phone: '19537538844', leader: '欧阳玲', field: '工程协同', next_plan: '' },
     { name: '城市更新全流程管理系统', type: '技术服务', contract: 116.0, year: 2026, phase: '进行中', pending: 56.0, q1: 0, q2: 33.6, q3: 0, q4: 22.4, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市壹平台信息技术有限公司', contact: '刘涛', position: '商务总监', phone: '13691638030', leader: '韩江雪', field: '工程协同', next_plan: '壹平台初验估计七月底。要求我院同事到场配合全流程剩下几个阶段的开发结果确认，盯效果和提意见' },
-    { name: '通讯井盖AI智慧运维项目', type: '集成开发', contract: 95.0, year: 2026, phase: '', pending: 0.0, q1: 0.0, q2: 0.0, q3: 0.0, q4: 0.0, aq1: 0.0, aq2: 0.0, aq3: 0.0, aq4: 0.0, client: '', contact: '', position: '', phone: '', leader: '', field: '', next_plan: '' },
+    { name: '通讯井盖AI智慧运维项目', type: '集成开发', contract: 95.0, year: 2026, phase: '前期跟进', pending: 0.0, q1: 0.0, q2: 0.0, q3: 0.0, q4: 0.0, aq1: 0.0, aq2: 0.0, aq3: 0.0, aq4: 0.0, client: '', contact: '', position: '', phone: '', leader: '', field: '', next_plan: '' },
     { name: 'CSPON-深圳市“数据要素X城市治理”创新试点建设（华强北片区）+ 深圳市片区控制性详细规划设计导则数字试点', type: '咨询研究', contract: 80.0, year: 2026, phase: '招采中', pending: 80.0, q1: 0, q2: 30.0, q3: 0, q4: 30.0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '易图资讯股份有限公司', contact: '张甲伟', position: '项目经理', phone: '13766837953', leader: '韩江雪', field: '咨询工作', next_plan: '' },
     { name: '生态产品价值统一核算信息平台建设采购项目', type: '咨询研究', contract: 79.3, year: 2024, phase: '待收尾款', pending: 23.79, q1: 0, q2: 23.79, q3: 0, q4: 0, aq1: 0, aq2: 23.79, aq3: 0, aq4: 0, client: '长三角生态绿色一体化发展示范区执行委员会', contact: '汪海峰', position: '规建部对接人', phone: '微信号：Omni_G', leader: '李承涛', field: '智慧环境', next_plan: '' },
     { name: '内控体系管理助手及智能办公助手技术服务', type: '集成开发', contract: 78.6, year: 2025, phase: '待收尾款', pending: 39.3, q1: 0, q2: 39.3, q3: 0, q4: 0, aq1: 0, aq2: 0, aq3: 0, aq4: 0, client: '深圳市环境监测中心站', contact: '潘晓峰', position: '综合室主任', phone: '13632707950', leader: '刘文娟', field: 'AI智能化', next_plan: '' },
@@ -1655,15 +1663,15 @@ const FILE_INDEX = {
         // 计划收款数据 (按季度)
                                 const PLAN_DATA = {
     q1: { research: 0, develop: 0.0, service: 0 },
-    q2: { research: 261.44, develop: 39.3, service: 0 },
-    q3: { research: 247.9, develop: 0.0, service: 0 },
-    q4: { research: 187.20000000000002, develop: 698.05, service: 0 },
+    q2: { research: 292.6, develop: 39.3, service: 0 },
+    q3: { research: 292.663, develop: 0.0, service: 0 },
+    q4: { research: 205.9, develop: 698.05, service: 0 },
         };
 
         // 实际收款数据 (按季度, Q1为空表示未录入)
                                 const ACTUAL_DATA = {
     q1: { research: 0, develop: 0.0, service: 0 },
-    q2: { research: 96.64, develop: 0.0, service: 0 },
+    q2: { research: 141.403, develop: 0.0, service: 0 },
     q3: { research: 0, develop: 0.0, service: 0 },
     q4: { research: 0, develop: 0.0, service: 0 },
         };
@@ -1672,6 +1680,7 @@ const FILE_INDEX = {
         let currentTypeFilter = '全部';
         let currentPersonFilter = '全部';
         let currentFieldFilter = '全部';
+        let currentYearFilter = '全部';
         let currentClientFilter = '全部';
         let expandedRows = new Set();
 
@@ -2263,7 +2272,8 @@ const FILE_INDEX = {
                 const matchType = currentTypeFilter === '全部' || p.type === currentTypeFilter;
                 const matchPerson = currentPersonFilter === '全部' || getPerson(p.name) === currentPersonFilter;
                 const matchField = currentFieldFilter === '全部' || getField(p.name) === currentFieldFilter;
-                return matchSearch && matchType && matchPerson && matchField;
+                const matchYear = currentYearFilter === '全部' || String(p.year) === currentYearFilter;
+                return matchSearch && matchType && matchPerson && matchField && matchYear;
             });
 
             tbody.innerHTML = filtered.map((p, index) => {
@@ -2372,6 +2382,15 @@ const FILE_INDEX = {
                 });
                 document.querySelectorAll('[data-filter^="专业"]').forEach(btn => {
                     const isMatch = value === '全部' ? btn.dataset.filter === '专业-全部' : btn.dataset.filter === '专业-' + value;
+                    btn.classList.toggle('active', isMatch);
+                });
+                        } else if (filterType === 'year') {
+                currentYearFilter = value;
+                document.querySelectorAll('[data-filter^="类型"], [data-filter^="负责人"], [data-filter^="专业"]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('[data-filter^="年份"]').forEach(btn => {
+                    const isMatch = value === '全部' ? btn.dataset.filter === '年份-全部' : btn.dataset.filter === '年份-' + value;
                     btn.classList.toggle('active', isMatch);
                 });
             }

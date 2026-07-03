@@ -1264,6 +1264,14 @@
                         <button class="filter-btn" data-filter="专业-规划行业" onclick="setProjectFilter('规划行业', 'field')">规划行业</button>
                     </div>
                 </div>
+                <div class="filter-row" style="margin-top: 12px;">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="年份-全部" onclick="setProjectFilter('全部', 'year')">年份: 全部</button>
+                        <button class="filter-btn" data-filter="年份-2026" onclick="setProjectFilter('2026', 'year')">2026</button>
+                        <button class="filter-btn" data-filter="年份-2025" onclick="setProjectFilter('2025', 'year')">2025</button>
+                        <button class="filter-btn" data-filter="年份-2024" onclick="setProjectFilter('2024', 'year')">2024</button>
+                    </div>
+                </div>
             </div>
 
             <div class="table-section">
@@ -1671,6 +1679,7 @@ const FILE_INDEX = {
         let currentTypeFilter = '全部';
         let currentPersonFilter = '全部';
         let currentFieldFilter = '全部';
+        let currentYearFilter = '全部';
         let currentClientFilter = '全部';
         let expandedRows = new Set();
 
@@ -2262,7 +2271,8 @@ const FILE_INDEX = {
                 const matchType = currentTypeFilter === '全部' || p.type === currentTypeFilter;
                 const matchPerson = currentPersonFilter === '全部' || getPerson(p.name) === currentPersonFilter;
                 const matchField = currentFieldFilter === '全部' || getField(p.name) === currentFieldFilter;
-                return matchSearch && matchType && matchPerson && matchField;
+                const matchYear = currentYearFilter === '全部' || String(p.year) === currentYearFilter;
+                return matchSearch && matchType && matchPerson && matchField && matchYear;
             });
 
             tbody.innerHTML = filtered.map((p, index) => {
@@ -2371,6 +2381,15 @@ const FILE_INDEX = {
                 });
                 document.querySelectorAll('[data-filter^="专业"]').forEach(btn => {
                     const isMatch = value === '全部' ? btn.dataset.filter === '专业-全部' : btn.dataset.filter === '专业-' + value;
+                    btn.classList.toggle('active', isMatch);
+                });
+                        } else if (filterType === 'year') {
+                currentYearFilter = value;
+                document.querySelectorAll('[data-filter^="类型"], [data-filter^="负责人"], [data-filter^="专业"]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('[data-filter^="年份"]').forEach(btn => {
+                    const isMatch = value === '全部' ? btn.dataset.filter === '年份-全部' : btn.dataset.filter === '年份-' + value;
                     btn.classList.toggle('active', isMatch);
                 });
             }
