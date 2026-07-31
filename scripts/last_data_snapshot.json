@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-30T18:30:55.205708",
+  "timestamp": "2026-07-31T18:31:09.612809",
   "plan_data": {
     "q1": {
       "research": 0,
@@ -26,17 +26,17 @@
     "q1": {
       "research": 0,
       "service": 0,
-      "develop": 0.0
+      "develop": 17.9
     },
     "q2": {
-      "research": 141.403,
+      "research": 149.403,
       "service": 0,
       "develop": 0.0
     },
     "q3": {
       "research": 0,
       "service": 0,
-      "develop": 0.0
+      "develop": 39.3
     },
     "q4": {
       "research": 0,
